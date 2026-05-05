@@ -30,7 +30,8 @@
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.READ_SMS",
-        "android.permission.RECEIVE_SMS"
+        "android.permission.RECEIVE_SMS",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -42,6 +43,12 @@
       "expo-camera",
       "expo-image-picker",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "06595bf0-b8ed-434f-837b-05ab619c0f16"
+      }
+    },
+    "owner": "duval1703"
   }
 }
