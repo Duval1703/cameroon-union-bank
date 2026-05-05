@@ -1,0 +1,46 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║     📱 PHONE NOT CONNECTING? HERE'S THE QUICK FIX             ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+PROBLEM:
+   Phone IP:    192.168.100.186
+   Computer IP: 192.168.206.23
+   ❌ Different subnets = Can't connect!
+
+═══════════════════════════════════════════════════════════════
+✅ FASTEST FIX (2 minutes)
+═══════════════════════════════════════════════════════════════
+
+1. On your PHONE:
+   • Go to Settings
+   • Enable "Mobile Hotspot"
+   • Turn it ON
+
+2. On your COMPUTER:
+   • Connect to your phone's hotspot WiFi
+   • Wait for connection
+
+3. On your COMPUTER, run:
+   cd data_collection_agent
+   python3 get_network_info.py
+
+4. Use the NEW IP shown to access from your phone
+
+DONE! Both devices now on same network! 🎉
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST FIRST (Verify System Works)
+═══════════════════════════════════════════════════════════════
+
+On your COMPUTER browser, visit:
+
+   http://192.168.206.23:8000/consent/pending
+
+If you see the consent page = System is working! ✅
+You just need to fix the network connection.
+
+═══════════════════════════════════════════════════════════════
+
+Read PHONE_NOT_CONNECTING.md for detailed instructions.

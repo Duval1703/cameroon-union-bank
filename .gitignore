@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+**/node_modules/
+venv/
+.venv/
+**/venv/
+**/.venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.keystore
+*.jks
+*.p8
+*.p12
+google-services.json
+GoogleService-Info.plist
+
+# Expo / React Native / Android build output
+.expo/
+**/.expo/
+android/.gradle/
+**/android/.gradle/
+**/android/app/build/
+**/android/app/.cxx/
+**/build/
+*.apk
+*.aab
+
+# Python cache and runtime output
+__pycache__/
+**/__pycache__/
+*.pyc
+uploads/
+**/uploads/
+logs/
+**/logs/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local logs
+*.log
+log.txt
+
+# Local assistant/editor settings
+.claude/
+**/.claude/
+
+# Large ML training datasets should live outside Git or in object storage
+services/credit-scoring/dataset/
+*.csv
+*.xls
+*.xlsx

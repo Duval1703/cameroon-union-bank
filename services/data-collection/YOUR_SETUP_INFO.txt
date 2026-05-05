@@ -1,0 +1,116 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║           📱 YOUR SMS COLLECTION SETUP INFO                   ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+✅ CONFIGURATION COMPLETE!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 YOUR COMPUTER'S IP ADDRESS:
+
+   192.168.192.1
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 URLS TO USE:
+
+   Backend Dashboard (Computer):
+   http://localhost:8004
+   
+   Backend Dashboard (Phone):
+   http://192.168.192.1:8004
+   
+   API Endpoint:
+   http://192.168.192.1:8004/api/sms
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ MOBILE APP CONFIGURED:
+
+   The following files have been updated with your IP:
+   
+   • cub_mobile_app/services/sms_reader.ts
+   • Both API_URL locations configured
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 NEXT STEPS:
+
+1. Start Backend Server:
+   ┌────────────────────────────────────────────────────────┐
+   │ cd data_collection_agent                               │
+   │ python sms_collection_agent.py                         │
+   └────────────────────────────────────────────────────────┘
+
+2. Test from Phone Browser:
+   ┌────────────────────────────────────────────────────────┐
+   │ Open: http://192.168.192.1:8004                        │
+   │ You should see the dashboard!                          │
+   └────────────────────────────────────────────────────────┘
+
+3. Install Mobile App:
+   ┌────────────────────────────────────────────────────────┐
+   │ cd cub_mobile_app                                      │
+   │ npx expo start                                         │
+   │ Scan QR with Expo Go app on phone                     │
+   └────────────────────────────────────────────────────────┘
+
+4. Create Request:
+   ┌────────────────────────────────────────────────────────┐
+   │ On computer: http://localhost:8004                     │
+   │ Enter your phone number                                │
+   │ Click "Send SMS Collection Request"                    │
+   └────────────────────────────────────────────────────────┘
+
+5. Test on Phone:
+   ┌────────────────────────────────────────────────────────┐
+   │ Open CUB app                                           │
+   │ Navigate to SMS consent screen                         │
+   │ Tap "Approve & Collect Data"                           │
+   │ Grant SMS permission                                   │
+   │ Wait for collection to complete                        │
+   └────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 FIREWALL NOTE (if needed):
+
+If phone can't access dashboard, allow port 8004:
+
+Windows:
+  Settings → Windows Security → Firewall & network protection
+  → Advanced settings → Inbound Rules → New Rule
+  → Port → TCP → 8004 → Allow
+
+Linux:
+  sudo ufw allow 8004
+
+Mac:
+  System Preferences → Security & Privacy → Firewall
+  → Firewall Options → Add port 8004
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 TROUBLESHOOTING CHECKLIST:
+
+□ Backend server running (terminal shows "Uvicorn running")
+□ Computer IP is 192.168.192.1 (confirmed)
+□ Phone and computer on same WiFi network
+□ Port 8004 allowed in firewall
+□ Phone can access http://192.168.192.1:8004 in browser
+□ Expo Go app installed on phone
+□ react-native-get-sms-android installed (✅ done)
+□ Phone has MTN/Orange Money SMS messages
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 YOU'RE READY TO TEST!
+
+Everything is configured and ready.
+Follow the "NEXT STEPS" above to start testing.
+
+Good luck! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

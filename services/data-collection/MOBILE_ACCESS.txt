@@ -1,0 +1,54 @@
+═══════════════════════════════════════════════════════════
+  📱 MOBILE ACCESS INSTRUCTIONS
+═══════════════════════════════════════════════════════════
+
+Your Computer's IP Address: 192.168.206.23
+
+To approve data requests from your phone:
+
+1️⃣  Connect your phone to the SAME WiFi network as this computer
+
+2️⃣  Open your phone's browser (Chrome, Safari, etc.)
+
+3️⃣  Type this URL in the address bar:
+
+    http://192.168.206.23:8000/consent/pending
+
+4️⃣  You'll see pending data requests - Click "✓ Approve"
+
+5️⃣  The data will be sent to the CUB Agent automatically!
+
+
+═══════════════════════════════════════════════════════════
+  💻 DESKTOP ACCESS
+═══════════════════════════════════════════════════════════
+
+CUB Agent Dashboard:
+    http://localhost:8001
+
+MTN/Orange Consent Page (for testing on same computer):
+    http://localhost:8000/consent/pending
+
+
+═══════════════════════════════════════════════════════════
+  ✅ COMPLETE WORKFLOW
+═══════════════════════════════════════════════════════════
+
+1. Open http://localhost:8001 on your computer
+2. Fill in phone number: +237670123456
+3. Select provider: MTN or ORANGE
+4. Click "Request Data Collection"
+5. On your phone, go to: http://192.168.206.23:8000/consent/pending
+6. Click "✓ Approve"
+7. Watch data appear on your computer dashboard!
+
+
+═══════════════════════════════════════════════════════════
+
+Note: If the IP address changes (e.g., you switch WiFi networks),
+run this command to get the new IP:
+
+  Linux/Mac:  hostname -I
+  Windows:    ipconfig
+
+Then use: http://NEW_IP:8000/consent/pending

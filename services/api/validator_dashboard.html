@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUB - Validator Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #374151;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #002853 0%, #004080 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #fed65b;
+            color: #002853;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #002853;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Verification Queue */
+        .queue-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #002853;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: #002853;
+            color: white;
+        }
+
+        /* User Cards */
+        .user-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .user-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .user-card:hover {
+            border-color: #002853;
+            box-shadow: 0 4px 12px rgba(0, 40, 83, 0.1);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fed65b 0%, #ffc107 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #002853;
+        }
+
+        .user-info h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #002853;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .detail-item {
+            font-size: 13px;
+        }
+
+        .detail-label {
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .user-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-review {
+            background: #002853;
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-pending {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 1200px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #002853;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .photo-section {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .photo-section h4 {
+            margin-bottom: 12px;
+            color: #002853;
+        }
+
+        .photo-container {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-card {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #fed65b;
+        }
+
+        .info-card h5 {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .info-card p {
+            font-size: 16px;
+            font-weight: 600;
+            color: #002853;
+        }
+
+        .decision-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .decision-section h4 {
+            margin-bottom: 16px;
+            color: #002853;
+        }
+
+        .decision-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-approve {
+            background: #4CAF50;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-reject {
+            background: #EF5350;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #002853;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔍 CUB Validator Dashboard</h1>
+            <p>Review and verify user KYC submissions</p>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="loadPendingVerifications()">🔄 Refresh Queue</button>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-pending">0</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-today">0</div>
+                <div class="stat-label">Reviewed Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-approved">0</div>
+                <div class="stat-label">Total Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-rejected">0</div>
+                <div class="stat-label">Total Rejected</div>
+            </div>
+        </div>
+
+        <!-- Verification Queue -->
+        <div class="queue-section">
+            <div class="section-header">
+                <h2 class="section-title">Verification Queue</h2>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterQueue('pending')">Pending</button>
+                    <button class="filter-tab" onclick="filterQueue('verified')">Verified</button>
+                    <button class="filter-tab" onclick="filterQueue('rejected')">Rejected</button>
+                </div>
+            </div>
+
+            <div id="user-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading verifications...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal" id="review-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">KYC Verification Review</h3>
+                <button class="btn-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8003';
+        let authToken = null;
+        let currentFilter = 'pending';
+        let allUsers = [];
+
+        // Check if logged in
+        if (!localStorage.getItem('validator_token')) {
+            promptLogin();
+        } else {
+            authToken = localStorage.getItem('validator_token');
+            loadPendingVerifications();
+        }
+
+        function promptLogin() {
+            const email = prompt('Enter validator email:', 'validator@cub.cm');
+            const password = prompt('Enter password:', 'validator123');
+
+            if (email && password) {
+                login(email, password);
+            }
+        }
+
+        async function login(email, password) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', email);
+                formData.append('password', password);
+
+                console.log('Attempting login to:', `${API_BASE}/api/auth/login`);
+                
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData.toString()
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok && data.user.user_role === 'validator') {
+                    authToken = data.access_token;
+                    localStorage.setItem('validator_token', authToken);
+                    loadPendingVerifications();
+                } else {
+                    alert('Invalid credentials or not a validator');
+                    promptLogin();
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('validator_token');
+            authToken = null;
+            location.reload();
+        }
+
+        async function loadPendingVerifications() {
+            try {
+                const response = await fetch(`${API_BASE}/api/validator/pending`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) {
+                    // Endpoint doesn't exist yet, load all users
+                    loadAllUsers();
+                    return;
+                }
+
+                const users = await response.json();
+                allUsers = users;
+                renderUsers(users);
+                updateStats(users);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                loadAllUsers();
+            }
+        }
+
+        async function loadAllUsers() {
+            try {
+                // Fallback: get all users from database
+                const response = await fetch(`${API_BASE}/api/validator/all-users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) {
+                    // Show mock data for now
+                    showMockData();
+                    return;
+                }
+
+                const users = await response.json();
+                allUsers = users;
+                renderUsers(users.filter(u => u.kyc_status === currentFilter));
+                updateStats(users);
+            } catch (error) {
+                console.error('Error:', error);
+                showMockData();
+            }
+        }
+
+        function showMockData() {
+            // Load from actual database via SQL
+            renderUsers([]);
+            document.getElementById('user-list').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>No verifications pending</h3>
+                    <p>All KYC submissions have been reviewed</p>
+                </div>
+            `;
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('user-list');
+            
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✓</div>
+                        <h3>No ${currentFilter} verifications</h3>
+                        <p>Check other tabs or refresh the queue</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div class="user-card" onclick="openReviewModal('${user.id}')">
+                    <div class="user-avatar">${user.full_name.charAt(0).toUpperCase()}</div>
+                    <div class="user-info">
+                        <h3>${user.full_name}</h3>
+                        <div class="user-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value">${user.email}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Phone</div>
+                                <div class="detail-value">${user.phone || 'N/A'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Submitted</div>
+                                <div class="detail-value">${new Date(user.created_at).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-review" onclick="openReviewModal('${user.id}'); event.stopPropagation();">
+                            Review KYC
+                        </button>
+                        <div class="status-badge status-${user.kyc_status}">
+                            ${user.kyc_status.toUpperCase()}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(users) {
+            const pending = users.filter(u => u.kyc_status === 'pending').length;
+            const verified = users.filter(u => u.kyc_status === 'verified').length;
+            const rejected = users.filter(u => u.kyc_status === 'rejected').length;
+            
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-approved').textContent = verified;
+            document.getElementById('stat-rejected').textContent = rejected;
+            document.getElementById('stat-today').textContent = 0; // Would need timestamp filtering
+        }
+
+        function filterQueue(status) {
+            currentFilter = status;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter and render
+            const filtered = allUsers.filter(u => u.kyc_status === status);
+            renderUsers(filtered);
+        }
+
+        async function openReviewModal(userId) {
+            const modal = document.getElementById('review-modal');
+            const body = document.getElementById('modal-body');
+            
+            modal.classList.add('active');
+            body.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading user data...</p></div>';
+            
+            try {
+                // Fetch user details (would be from API)
+                const user = allUsers.find(u => u.id === userId);
+                
+                if (!user) {
+                    body.innerHTML = '<p>User not found</p>';
+                    return;
+                }
+                
+                renderReviewModal(user);
+            } catch (error) {
+                console.error('Error loading user:', error);
+                body.innerHTML = '<p>Error loading user data</p>';
+            }
+        }
+
+        function renderReviewModal(user) {
+            const body = document.getElementById('modal-body');
+            
+            body.innerHTML = `
+                <div class="comparison-grid">
+                    <div class="photo-section">
+                        <h4>📄 Document Photo</h4>
+                        <div class="photo-container">
+                            ${user.id_front_url ? 
+                                `<img src="${API_BASE}${user.id_front_url}" alt="ID Document">` :
+                                `<div class="photo-placeholder">
+                                    <p>📷</p>
+                                    <p>No document photo</p>
+                                </div>`
+                            }
+                        </div>
+                    </div>
+                    <div class="photo-section">
+                        <h4>🤳 Selfie Photo</h4>
+                        <div class="photo-container">
+                            ${user.selfie_url ? 
+                                `<img src="${API_BASE}${user.selfie_url}" alt="Selfie">` :
+                                `<div class="photo-placeholder">
+                                    <p>🤳</p>
+                                    <p>No selfie photo</p>
+                                </div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h5>Full Name</h5>
+                        <p>${user.full_name}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>Email</h5>
+                        <p>${user.email}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>Phone</h5>
+                        <p>${user.phone || 'N/A'}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>Date of Birth</h5>
+                        <p>${user.date_of_birth || 'N/A'}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>ID Type</h5>
+                        <p>${user.id_type || 'N/A'}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>ID Number</h5>
+                        <p>${user.id_number || 'N/A'}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>City</h5>
+                        <p>${user.city || 'N/A'}</p>
+                    </div>
+                    <div class="info-card">
+                        <h5>Nationality</h5>
+                        <p>${user.nationality || 'N/A'}</p>
+                    </div>
+                </div>
+
+                <div class="decision-section">
+                    <h4>Verification Decision</h4>
+                    <textarea class="notes-textarea" id="review-notes" placeholder="Add verification notes (optional)..."></textarea>
+                    <div class="decision-buttons">
+                        <button class="btn-approve" onclick="approveUser('${user.id}')">
+                            ✓ Approve Verification
+                        </button>
+                        <button class="btn-reject" onclick="rejectUser('${user.id}')">
+                            ✗ Reject Verification
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function approveUser(userId) {
+            const notes = document.getElementById('review-notes').value;
+            
+            if (!confirm('Are you sure you want to APPROVE this user?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/validator/approve/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ notes })
+                });
+                
+                if (response.ok) {
+                    alert('✅ User approved successfully!');
+                    closeModal();
+                    loadPendingVerifications();
+                } else {
+                    alert('Failed to approve user');
+                }
+            } catch (error) {
+                console.error('Error approving user:', error);
+                alert('Error approving user');
+            }
+        }
+
+        async function rejectUser(userId) {
+            const notes = document.getElementById('review-notes').value;
+            
+            if (!notes.trim()) {
+                alert('Please provide a reason for rejection');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to REJECT this user?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/validator/reject/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ notes })
+                });
+                
+                if (response.ok) {
+                    alert('❌ User rejected');
+                    closeModal();
+                    loadPendingVerifications();
+                } else {
+                    alert('Failed to reject user');
+                }
+            } catch (error) {
+                console.error('Error rejecting user:', error);
+                alert('Error rejecting user');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('review-modal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('review-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "MboaTrust AI",
+    "slug": "mboatrust-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1B5E4B"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mboatrust.ai",
+      "infoPlist": {
+        "NSCameraUsageDescription": "MboaTrust AI uses the camera to capture payment receipts for verification.",
+        "NSPhotoLibraryUsageDescription": "MboaTrust AI accesses your photo library to select payment receipts for verification."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1B5E4B"
+      },
+      "package": "com.mboatrust.ai",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_SMS",
+        "android.permission.RECEIVE_SMS"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-image-picker",
+      "expo-secure-store"
+    ]
+  }
+}

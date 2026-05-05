@@ -1,0 +1,5 @@
+{
+  "topic_name": "cub_consent",
+  "ntfy_server": "https://ntfy.sh",
+  "enabled": true
+}

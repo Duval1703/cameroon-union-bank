@@ -1,0 +1,131 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║       🏦 CUB DATA COLLECTION AGENT v2.0                               ║
+║       ✨ NOW WITH QR CODE NOTIFICATIONS! ✨                           ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════
+  🎉 NEW FEATURE: AUTO QR CODE NOTIFICATIONS
+═══════════════════════════════════════════════════════════════════════
+
+NO MORE MANUAL LINKS! 
+Just scan a QR code with your phone camera!
+
+
+═══════════════════════════════════════════════════════════════════════
+  🚀 QUICK START (4 EASY STEPS)
+═══════════════════════════════════════════════════════════════════════
+
+STEP 1: Start the servers
+──────────────────────────
+    cd data_collection_agent
+    ./start_servers.sh
+
+STEP 2: Request data
+──────────────────────────
+    Open: http://localhost:8001
+    Fill in phone number: +237670123456
+    Select provider: MTN or ORANGE
+    Click: "Request Data Collection"
+
+STEP 3: Open QR notification
+──────────────────────────
+    A file is created at: /tmp/cub_consent_XXXXXXXX.html
+    Open it in your browser:
+        firefox /tmp/cub_consent_*.html
+
+STEP 4: Scan with your phone
+──────────────────────────
+    📸 Open your phone camera
+    📱 Point at the QR code on your screen
+    🔔 Tap the notification
+    ✅ Click "Approve"
+    
+    DONE! Data appears automatically! 🎉
+
+
+═══════════════════════════════════════════════════════════════════════
+  🎯 HOW IT WORKS
+═══════════════════════════════════════════════════════════════════════
+
+Computer: Request Data
+    ↓
+QR Code Created Automatically
+    ↓
+Open QR Notification in Browser
+    ↓
+Phone Camera Scans QR Code
+    ↓
+Consent Page Opens on Phone
+    ↓
+Tap "Approve"
+    ↓
+Data Collected & Displayed! ✅
+
+
+═══════════════════════════════════════════════════════════════════════
+  📚 DOCUMENTATION
+═══════════════════════════════════════════════════════════════════════
+
+  📖 NEW_QR_NOTIFICATION_GUIDE.md  - Complete QR guide (READ THIS!)
+  📖 HOW_NOTIFICATION_WORKS.md     - Technical details
+  📖 QUICK_START.md                - Getting started guide
+  📖 SYSTEM_OVERVIEW.md            - Architecture & features
+  📖 PHONE_NOT_CONNECTING.md       - Network troubleshooting
+
+
+═══════════════════════════════════════════════════════════════════════
+  ✨ WHAT'S NEW IN v2.0
+═══════════════════════════════════════════════════════════════════════
+
+  ✅ Auto-generated QR codes for each request
+  ✅ Beautiful notification HTML pages
+  ✅ No more manual IP address typing
+  ✅ Works with any phone camera
+  ✅ Persistent notification files
+  ✅ Much easier to use!
+
+
+═══════════════════════════════════════════════════════════════════════
+  🧪 QUICK TEST
+═══════════════════════════════════════════════════════════════════════
+
+    cd data_collection_agent
+    python3 test_simulation.py
+
+
+═══════════════════════════════════════════════════════════════════════
+  ❓ STILL HAVING NETWORK ISSUES?
+═══════════════════════════════════════════════════════════════════════
+
+The QR code method works even with network problems!
+Just make sure your phone can access the consent page.
+
+For network help:
+  - Read: PHONE_NOT_CONNECTING.md
+  - Use: Mobile Hotspot (easiest solution)
+  - Run: ./fix_network.sh
+
+
+═══════════════════════════════════════════════════════════════════════
+  📞 PROJECT INFO
+═══════════════════════════════════════════════════════════════════════
+
+Project:      Cameroon Union Bank (CUB)
+Purpose:      AI Financial Identity & P2P Lending Platform
+Version:      2.0 (QR Notifications)
+Created by:   NERYNN ANAELLE & NGONGUE MODI ALLAN
+Institution:  Institut Universitaire de la Côte
+Date:         April 8, 2026
+
+
+═══════════════════════════════════════════════════════════════════════
+
+          🎊 YOUR DATA COLLECTION AGENT IS READY! 🎊
+          
+          Much easier now with QR codes!
+          Just scan and approve - that's it! 📱✨
+
+═══════════════════════════════════════════════════════════════════════

@@ -1,0 +1,16 @@
+{
+  "bot_token": "YOUR_BOT_TOKEN_HERE",
+  "chat_id": "YOUR_CHAT_ID_HERE",
+  "enabled": false,
+  "instructions": {
+    "step_1": "Open Telegram and search for @BotFather",
+    "step_2": "Send /newbot and follow instructions",
+    "step_3": "Get your bot token (looks like: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+    "step_4": "Start a chat with your bot",
+    "step_5": "Send /start to your bot",
+    "step_6": "Run: python3 get_telegram_chat_id.py",
+    "step_7": "Put bot_token and chat_id in this file",
+    "step_8": "Set enabled to true",
+    "step_9": "Restart the servers"
+  }
+}

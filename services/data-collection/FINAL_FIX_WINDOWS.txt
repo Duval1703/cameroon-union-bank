@@ -1,0 +1,55 @@
+╔═══════════════════════════════════════════════════════════════╗
+║  🔧 FINAL FIX - Windows Port Forwarding to WSL                ║
+╚═══════════════════════════════════════════════════════════════╝
+
+PROBLEM:
+  Phone:    192.168.137.220 (Windows hotspot)
+  WSL:      192.168.206.23 (separate network)
+  Result:   Phone cannot reach WSL directly
+
+SOLUTION:
+  Forward Windows hotspot IP → WSL IP
+
+═══════════════════════════════════════════════════════════════
+  📋 STEPS (Run on Windows PowerShell AS ADMINISTRATOR):
+═══════════════════════════════════════════════════════════════
+
+1. Open PowerShell AS ADMINISTRATOR
+
+2. Add port forwarding rules:
+
+netsh interface portproxy add v4tov4 listenport=8000 listenaddress=192.168.137.1 connectport=8000 connectaddress=192.168.206.23
+
+netsh interface portproxy add v4tov4 listenport=8001 listenaddress=192.168.137.1 connectport=8001 connectaddress=192.168.206.23
+
+3. Open Windows Firewall:
+
+netsh advfirewall firewall add rule name="CUB Port 8000" dir=in action=allow protocol=TCP localport=8000
+
+netsh advfirewall firewall add rule name="CUB Port 8001" dir=in action=allow protocol=TCP localport=8001
+
+4. Verify port forwarding:
+
+netsh interface portproxy show all
+
+You should see:
+  Listen on 192.168.137.1:8000 → Connect to 192.168.206.23:8000
+  Listen on 192.168.137.1:8001 → Connect to 192.168.206.23:8001
+
+═══════════════════════════════════════════════════════════════
+  🧪 TEST AFTER SETUP:
+═══════════════════════════════════════════════════════════════
+
+On your phone browser:
+  http://192.168.137.1:8000/health
+
+If you see JSON ✅ = Port forwarding works!
+
+═══════════════════════════════════════════════════════════════
+  📱 THEN UPDATE THE AGENT TO USE 192.168.137.1:
+═══════════════════════════════════════════════════════════════
+
+After port forwarding works, update the callback URLs
+back to 192.168.137.1 (so phone can reach it)
+
+═══════════════════════════════════════════════════════════════
