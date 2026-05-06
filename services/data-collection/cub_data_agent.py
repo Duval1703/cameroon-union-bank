@@ -47,8 +47,11 @@ class DataCollectionRequest(BaseModel):
     user_id: Optional[str] = None
 
 
-# Configuration for MTN/Orange server
-MTN_ORANGE_SERVER = "http://localhost:8000"
+# Configuration for MTN/Orange server and public webhook URL.
+# In local development these default to localhost. In deployment, Render provides
+# public HTTPS URLs through environment variables.
+MTN_ORANGE_SERVER = os.getenv("MTN_ORANGE_SERVER_URL", "http://localhost:8000").rstrip("/")
+PUBLIC_DATA_AGENT_URL = os.getenv("PUBLIC_DATA_AGENT_URL", "http://localhost:8001").rstrip("/")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -559,9 +562,9 @@ async def request_data_collection(request: DataCollectionRequest):
     """
     request_id = str(uuid.uuid4())
     
-    # Prepare callback URL for receiving data
-    # Use localhost since both servers are in the same WSL instance
-    callback_url = f"http://localhost:8001/webhook/data-received"
+    # Prepare callback URL for receiving data. This must be public in deployment
+    # so the provider simulator can call back into the data agent.
+    callback_url = f"{PUBLIC_DATA_AGENT_URL}/webhook/data-received"
     
     # Send request to MTN/Orange server
     try:
@@ -594,7 +597,7 @@ async def request_data_collection(request: DataCollectionRequest):
                 local_ip = socket.gethostbyname(hostname)
                 
                 # Build consent URL
-                consent_url = f"http://localhost:8000/consent/pending"
+                consent_url = f"{MTN_ORANGE_SERVER}/consent/pending"
                 
                 notification_opened = False
 
@@ -711,8 +714,19 @@ async def get_pending_requests():
     }
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment platforms."""
+    return {
+        "status": "healthy",
+        "service": "data-collection-agent",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", os.getenv("DATA_AGENT_PORT", "8001")))
     print("🚀 Starting CUB Data Collection Agent...")
-    print("📊 Dashboard: http://localhost:8001")
-    print("🔌 Webhook: http://localhost:8001/webhook/data-received")
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    print(f"📊 Dashboard: http://localhost:{port}")
+    print(f"🔌 Webhook: {PUBLIC_DATA_AGENT_URL}/webhook/data-received")
+    uvicorn.run(app, host="0.0.0.0", port=port)

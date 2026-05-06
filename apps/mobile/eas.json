@@ -21,8 +21,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api-staging.mboatrust.ai",
-        "EXPO_PUBLIC_DATA_AGENT_URL": "https://data-staging.mboatrust.ai"
+        "EXPO_PUBLIC_API_URL": "https://mboatrust-api.onrender.com",
+        "EXPO_PUBLIC_DATA_AGENT_URL": "https://mboatrust-data-collection.onrender.com"
       }
     },
     "production": {

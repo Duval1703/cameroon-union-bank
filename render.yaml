@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: mboatrust-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./services/api/Dockerfile
+    dockerContext: ./services/api
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mboatrust-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: DATA_COLLECTION_AGENT_URL
+        value: https://mboatrust-data-collection.onrender.com
+      - key: CREDIT_SCORING_AGENT_URL
+        value: https://mboatrust-credit-scoring.onrender.com
+
+  - type: web
+    name: mboatrust-data-collection
+    runtime: docker
+    plan: free
+    dockerfilePath: ./services/data-collection/Dockerfile
+    dockerContext: ./services/data-collection
+    healthCheckPath: /health
+    envVars:
+      - key: MTN_ORANGE_SERVER_URL
+        value: https://mboatrust-provider-simulator.onrender.com
+      - key: PUBLIC_DATA_AGENT_URL
+        value: https://mboatrust-data-collection.onrender.com
+
+  - type: web
+    name: mboatrust-provider-simulator
+    runtime: docker
+    plan: free
+    dockerfilePath: ./services/data-collection/Dockerfile.provider
+    dockerContext: ./services/data-collection
+    healthCheckPath: /health
+
+  - type: web
+    name: mboatrust-credit-scoring
+    runtime: docker
+    plan: free
+    dockerfilePath: ./services/credit-scoring/Dockerfile
+    dockerContext: ./services/credit-scoring
+    healthCheckPath: /health
+
+databases:
+  - name: mboatrust-db
+    plan: basic-256mb
+    databaseName: mboatrust
+    user: mboatrust_user

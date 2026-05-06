@@ -1143,7 +1143,8 @@ async def deny_consent(request_id: str):
 
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", os.getenv("PROVIDER_PORT", "8000")))
     print("🚀 Starting MTN/Orange Money Server Simulator...")
-    print("📱 Mobile Consent UI: http://localhost:8000/consent/pending")
-    print("🔌 API Endpoint: http://localhost:8000/api/v1/data-request")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print(f"📱 Mobile Consent UI: http://localhost:{port}/consent/pending")
+    print(f"🔌 API Endpoint: http://localhost:{port}/api/v1/data-request")
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -51,6 +51,14 @@ class ScoreRequest(BaseModel):
 def root():
     return {"status": "operational", "service": "Credit Scoring AI Agent"}
 
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy" if model is not None else "degraded",
+        "service": "credit-scoring-agent",
+        "model_loaded": model is not None
+    }
+
 @app.post("/score-user")
 def score_user(payload: ScoreRequest):
     if model is None:
@@ -134,5 +142,6 @@ def score_user(payload: ScoreRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", os.getenv("CREDIT_SCORING_PORT", "8002")))
     print("🚀 Starting CUB Credit Scoring API...")
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host="0.0.0.0", port=port)
