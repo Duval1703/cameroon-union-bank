@@ -68,7 +68,10 @@ approved_data = {}
 
 # Public URL used in push notification approve/deny buttons. In local
 # development it can remain localhost; in deployment it must be the Render URL.
-PUBLIC_PROVIDER_URL = os.getenv("PUBLIC_PROVIDER_URL", "http://localhost:8000").rstrip("/")
+PUBLIC_PROVIDER_URL = os.getenv(
+    "PUBLIC_PROVIDER_URL",
+    "https://mboatrust-provider-simulator.onrender.com"
+).rstrip("/")
 
 
 class DataRequest(BaseModel):

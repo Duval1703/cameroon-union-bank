@@ -9,6 +9,12 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 import httpx
 from datetime import datetime
+import os
+
+PUBLIC_PROVIDER_URL = os.getenv(
+    "PUBLIC_PROVIDER_URL",
+    "https://mboatrust-provider-simulator.onrender.com"
+).rstrip("/")
 
 class TelegramNotifier:
     def __init__(self, bot_token, chat_id):
@@ -117,7 +123,7 @@ class TelegramNotifier:
             try:
                 async with httpx.AsyncClient(timeout=30.0) as client:
                     response = await client.post(
-                        f"http://localhost:8000/consent/{request_id}/approve"
+                        f"{PUBLIC_PROVIDER_URL}/consent/{request_id}/approve"
                     )
                     result = response.json()
                     
@@ -154,7 +160,7 @@ class TelegramNotifier:
             try:
                 async with httpx.AsyncClient(timeout=30.0) as client:
                     response = await client.post(
-                        f"http://localhost:8000/consent/{request_id}/deny"
+                        f"{PUBLIC_PROVIDER_URL}/consent/{request_id}/deny"
                     )
                     
                     await query.edit_message_text(
