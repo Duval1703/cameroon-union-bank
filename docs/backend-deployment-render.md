@@ -22,7 +22,7 @@ This guide deploys the public backend needed by the installed APK.
 8. Click **Apply** or **Create Blueprint**.
 9. Wait for all services to finish deploying.
 
-Render Postgres uses the `basic-256mb` database plan in `render.yaml`. Render will show pricing before creating resources; confirm it only if you accept the database cost.
+Render Postgres uses the free database plan in `render.yaml`. This is good for testing, but Render free Postgres databases expire 30 days after creation. For a real public production launch, upgrade the database or move to another managed Postgres provider before the 30 days are over.
 
 ## Expected Public URLs
 

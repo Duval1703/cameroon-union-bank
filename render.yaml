@@ -51,6 +51,6 @@ services:
 
 databases:
   - name: mboatrust-db
-    plan: basic-256mb
+    plan: free
     databaseName: mboatrust
     user: mboatrust_user
