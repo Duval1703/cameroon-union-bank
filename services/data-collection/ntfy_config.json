@@ -1,5 +1,5 @@
 {
-  "topic_name": "cub-consent-allan",
+  "topic_name": "Mobile-Money-Consent",
   "enabled": true,
   "callback_base_url": "https://mboatrust-provider-simulator.onrender.com"
 }
