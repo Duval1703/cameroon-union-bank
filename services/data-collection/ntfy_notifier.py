@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ntfy.sh Notifier for CUB Data Collection Agent
+Ntfy.sh Notifier for MboaTrust Data Collection Agent
 Sends push notifications directly to your phone - NO ACCOUNT NEEDED!
 """
 
@@ -34,13 +34,12 @@ class NtfyNotifier:
         provider_icon = "[MTN]" if provider == "MTN" else "[ORANGE]"
         
         # Create notification message
-        title = f"{provider_icon} CUB Data Consent Request"
+        title = f"{provider_icon} MboaTrust Data Consent Request"
         message = (
             f"Provider: {provider} Mobile Money\n"
-            f"Phone: {user_phone}\n"
-            f"Time: {datetime.now().strftime('%H:%M:%S')}\n\n"
-            f"CUB Platform wants to collect your transaction data "
-            f"for the last 12 months to create your financial identity.\n\n"
+            f"Phone: {user_phone}\n\n"
+            f"MboaTrust wants to collect your transaction data "
+            f"for the last 12 months to generate your trust score and financial profile.\n\n"
             f"Tap a button below to respond:"
         )
         
@@ -94,13 +93,13 @@ class NtfyNotifier:
         """Send a test notification to verify setup"""
         
         headers = {
-            "Title": "🏦 CUB Data Collection Agent",
+            "Title": "MboaTrust Data Collection Agent",
             "Priority": "default",
             "Tags": "white_check_mark"
         }
         
         message = (
-            "✅ Ntfy notifications are working!\n\n"
+            "Ntfy notifications are working!\n\n"
             "You will receive consent requests here.\n"
             "Test completed successfully."
         )

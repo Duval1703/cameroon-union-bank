@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Telegram Bot Notifier for CUB Data Collection Agent
+Telegram Bot Notifier for MboaTrust Data Collection Agent
 Sends push notifications directly to your phone!
 """
 
@@ -78,8 +78,8 @@ class TelegramNotifier:
             f"*Phone:* {user_phone}\n"
             f"*Request ID:* `{request_id[:20]}...`\n"
             f"*Time:* {datetime.now().strftime('%H:%M:%S')}\n\n"
-            f"📊 *CUB Platform* wants to collect your transaction data "
-            f"for the last 12 months to create your financial identity.\n\n"
+            f"📊 *MboaTrust* wants to collect your transaction data "
+            f"for the last 12 months to generate your trust score and financial profile.\n\n"
             f"👇 *Choose your action:*"
         )
         
@@ -132,7 +132,7 @@ class TelegramNotifier:
                             f"✅ *Data Approved & Sent!*\n\n"
                             f"Provider: {request_info['provider']}\n"
                             f"Phone: {request_info['user_phone']}\n\n"
-                            f"Your transaction data has been collected and sent to CUB Platform.\n"
+                            f"Your transaction data has been collected and sent to MboaTrust.\n"
                             f"Check the dashboard to see your financial profile!",
                             parse_mode='Markdown'
                         )
