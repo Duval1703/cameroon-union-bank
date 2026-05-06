@@ -17,6 +17,7 @@ import uuid
 import webbrowser
 import os
 import tempfile
+import asyncio
 
 # Import notification system
 try:
@@ -566,20 +567,67 @@ async def request_data_collection(request: DataCollectionRequest):
     # so the provider simulator can call back into the data agent.
     callback_url = f"{PUBLIC_DATA_AGENT_URL}/webhook/data-received"
     
-    # Send request to MTN/Orange server
+    # Send request to MTN/Orange server. Render free services can be asleep on
+    # the first request, so retry transient empty/HTML responses before failing.
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{MTN_ORANGE_SERVER}/api/v1/data-request",
-                json={
-                    "user_phone": request.user_phone,
-                    "provider": request.provider,
-                    "callback_url": callback_url,
-                    "request_id": request_id
+        provider_payload = {
+            "user_phone": request.user_phone,
+            "provider": request.provider,
+            "callback_url": callback_url,
+            "request_id": request_id
+        }
+
+        result = None
+        last_error = "Provider did not return a response"
+
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            for attempt in range(1, 4):
+                try:
+                    response = await client.post(
+                        f"{MTN_ORANGE_SERVER}/api/v1/data-request",
+                        json=provider_payload
+                    )
+
+                    try:
+                        result = response.json()
+                    except ValueError:
+                        preview = response.text[:180].replace("\n", " ").strip()
+                        last_error = (
+                            f"Provider returned a non-JSON response "
+                            f"(HTTP {response.status_code}): {preview or 'empty response'}"
+                        )
+                        if attempt < 3:
+                            await asyncio.sleep(2 * attempt)
+                            continue
+                        return {"success": False, "message": last_error}
+
+                    if response.status_code >= 500 and attempt < 3:
+                        last_error = result.get("detail") or result.get("message") or f"HTTP {response.status_code}"
+                        await asyncio.sleep(2 * attempt)
+                        continue
+
+                    if response.status_code >= 400:
+                        return {
+                            "success": False,
+                            "message": result.get("detail") or result.get("message") or f"Provider returned HTTP {response.status_code}"
+                        }
+
+                    break
+                except httpx.RequestError as provider_error:
+                    last_error = str(provider_error)
+                    if attempt < 3:
+                        await asyncio.sleep(2 * attempt)
+                        continue
+                    return {
+                        "success": False,
+                        "message": f"Error connecting to MTN/Orange server: {last_error}"
+                    }
+
+            if result is None:
+                return {
+                    "success": False,
+                    "message": f"Error connecting to MTN/Orange server: {last_error}"
                 }
-            )
-            
-            result = response.json()
             
             if result.get("success"):
                 # Store pending request
