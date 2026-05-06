@@ -66,6 +66,10 @@ app.add_middleware(
 pending_requests = {}
 approved_data = {}
 
+# Public URL used in push notification approve/deny buttons. In local
+# development it can remain localhost; in deployment it must be the Render URL.
+PUBLIC_PROVIDER_URL = os.getenv("PUBLIC_PROVIDER_URL", "http://localhost:8000").rstrip("/")
+
 
 class DataRequest(BaseModel):
     user_phone: str
@@ -226,7 +230,7 @@ async def create_data_request(request: DataRequest):
                 request_id=request_id,
                 user_phone=request.user_phone,
                 provider=request.provider,
-                callback_base_url=ntfy_config.get("callback_base_url", "http://127.0.0.1:8000")
+                callback_base_url=PUBLIC_PROVIDER_URL
             )
             
             if notification_sent:
@@ -264,7 +268,7 @@ async def create_data_request(request: DataRequest):
         "success": True,
         "request_id": request_id,
         "message": response_message,
-        "consent_url": f"/consent/pending",
+        "consent_url": f"{PUBLIC_PROVIDER_URL}/consent/pending",
         "notification_sent": notification_sent,
         "notification_method": notification_method,
         "status": "pending"

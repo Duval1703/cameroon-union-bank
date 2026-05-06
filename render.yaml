@@ -40,6 +40,9 @@ services:
     dockerfilePath: ./services/data-collection/Dockerfile.provider
     dockerContext: ./services/data-collection
     healthCheckPath: /health
+    envVars:
+      - key: PUBLIC_PROVIDER_URL
+        value: https://mboatrust-provider-simulator.onrender.com
 
   - type: web
     name: mboatrust-credit-scoring

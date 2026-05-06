@@ -33,6 +33,8 @@ If the names are available, Render will create these URLs:
 - Provider simulator: `https://mboatrust-provider-simulator.onrender.com`
 - Credit scoring: `https://mboatrust-credit-scoring.onrender.com`
 
+The provider simulator uses `PUBLIC_PROVIDER_URL` for consent approval links. In deployment this must be the public provider URL, not `localhost` or `127.0.0.1`.
+
 If Render gives a different URL, update:
 
 - `render.yaml`
