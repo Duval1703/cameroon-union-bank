@@ -580,8 +580,16 @@ async def request_data_collection(request: DataCollectionRequest):
         result = None
         last_error = "Provider did not return a response"
 
-        async with httpx.AsyncClient(timeout=45.0) as client:
-            for attempt in range(1, 4):
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # Wake the provider service first. On Render free instances, the
+            # first request after inactivity can briefly return a 502 HTML page.
+            try:
+                await client.get(f"{MTN_ORANGE_SERVER}/health")
+            except httpx.RequestError:
+                pass
+
+            max_attempts = 6
+            for attempt in range(1, max_attempts + 1):
                 try:
                     response = await client.post(
                         f"{MTN_ORANGE_SERVER}/api/v1/data-request",
@@ -596,14 +604,17 @@ async def request_data_collection(request: DataCollectionRequest):
                             f"Provider returned a non-JSON response "
                             f"(HTTP {response.status_code}): {preview or 'empty response'}"
                         )
-                        if attempt < 3:
-                            await asyncio.sleep(2 * attempt)
+                        if response.status_code in (502, 503, 504) and attempt < max_attempts:
+                            await asyncio.sleep(min(5 * attempt, 20))
                             continue
-                        return {"success": False, "message": last_error}
+                        return {
+                            "success": False,
+                            "message": "Mobile money provider is temporarily unavailable. Please wait a minute and try Sync again."
+                        }
 
-                    if response.status_code >= 500 and attempt < 3:
+                    if response.status_code >= 500 and attempt < max_attempts:
                         last_error = result.get("detail") or result.get("message") or f"HTTP {response.status_code}"
-                        await asyncio.sleep(2 * attempt)
+                        await asyncio.sleep(min(5 * attempt, 20))
                         continue
 
                     if response.status_code >= 400:
@@ -615,12 +626,12 @@ async def request_data_collection(request: DataCollectionRequest):
                     break
                 except httpx.RequestError as provider_error:
                     last_error = str(provider_error)
-                    if attempt < 3:
-                        await asyncio.sleep(2 * attempt)
+                    if attempt < max_attempts:
+                        await asyncio.sleep(min(5 * attempt, 20))
                         continue
                     return {
                         "success": False,
-                        "message": f"Error connecting to MTN/Orange server: {last_error}"
+                        "message": "Mobile money provider is temporarily unavailable. Please wait a minute and try Sync again."
                     }
 
             if result is None:
