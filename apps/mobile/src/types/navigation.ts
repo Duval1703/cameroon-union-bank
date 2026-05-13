@@ -28,6 +28,7 @@ export type MainTabParamList = {
   Home: undefined;
   Verify: undefined;
   Records: undefined;
+  Inventory: undefined;
   Insights: undefined;
   Profile: undefined;
 };
@@ -58,6 +59,10 @@ export type RecordsStackParamList = {
   AddStock: undefined;
   StockHistory: undefined;
   RecordSuccess: { type: 'sale' | 'expense' | 'stock'; amount: number };
+};
+
+export type InventoryStackParamList = {
+  InventoryHub: undefined;
 };
 
 export type InsightsStackParamList = {

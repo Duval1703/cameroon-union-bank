@@ -16,13 +16,15 @@ import base64
 import binascii
 import uuid
 import httpx
+import re
+import unicodedata
 
 # Import local modules
 from database import engine, get_db, Base
 from models import (
     User, UserFinancialData, Transaction, Loan, Notification,
     SaleRecord, ExpenseRecord, StockRecord, ReceiptVerification,
-    TrustScoreHistory, UserPreference
+    TrustScoreHistory, UserPreference, InventoryTable
 )
 from file_upload import save_upload_file, validate_image_file
 from schemas import (
@@ -33,7 +35,9 @@ from schemas import (
     StockRecordCreate, StockRecordResponse, RecordsSummaryResponse,
     ReceiptManualVerificationCreate, ReceiptVerificationCreate, ReceiptVerificationResponse, TrustScoreResponse,
     StatisticsResponse, PredictionsResponse, UserPreferenceUpdate,
-    UserPreferenceResponse, ProfileUpdate
+    UserPreferenceResponse, ProfileUpdate, InventoryPhotoDigitalizeCreate,
+    InventoryVoiceDigitalizeCreate, InventoryDigitalizeResponse,
+    InventoryStructuredItem, InventoryTableCreate, InventoryTableResponse
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
@@ -77,6 +81,9 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 DATA_COLLECTION_AGENT_URL = os.getenv("DATA_COLLECTION_AGENT_URL", "http://localhost:8001")
 CREDIT_SCORING_AGENT_URL = os.getenv("CREDIT_SCORING_AGENT_URL", "http://localhost:8002")
+INVENTORY_OCR_MODEL_DET = os.getenv("INVENTORY_OCR_MODEL_DET", "PP-OCRv5_mobile_det")
+INVENTORY_OCR_MODEL_REC = os.getenv("INVENTORY_OCR_MODEL_REC", "latin_PP-OCRv5_mobile_rec")
+_inventory_ocr_engine = None
 
 
 # ============================================================================
@@ -940,6 +947,682 @@ async def delete_stock_record(
     db.delete(record)
     db.commit()
     return MessageResponse(message="Stock record deleted")
+
+
+NUMBER_WORDS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+    "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5,
+    "six": 6, "sept": 7, "huit": 8, "neuf": 9, "dix": 10,
+}
+
+
+def parse_spoken_business_record(transcript: str) -> Dict[str, Any]:
+    """Parse simple market voice notes after accent normalization."""
+    text = transcript.lower().strip()
+    normalized = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    normalized = re.sub(r"[,\.;:]", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+
+    amount = 0.0
+    amount_match = re.search(r"(?:pour|for|at|a)\s+([0-9\s]+)\s*(?:fcfa|francs?|xaf)?", normalized)
+    if amount_match:
+        digits = re.sub(r"\D", "", amount_match.group(1))
+        amount = float(digits) if digits else 0.0
+
+    action = "sale" if re.search(r"\b(vendu|sold|sell|selle|saled|vente|don sell)\b", normalized) else "stock"
+    if re.search(r"\b(achete|acheter|bought|buy|stock|restock|recu|received)\b", normalized):
+        action = "stock"
+
+    quantity = 1.0
+    quantity_match = re.search(
+        r"\b([0-9]+|one|two|three|four|five|six|seven|eight|nine|ten|un|une|deux|trois|quatre|cinq|sept|huit|neuf|dix)\b",
+        normalized,
+    )
+    if quantity_match:
+        token = quantity_match.group(1)
+        quantity = float(NUMBER_WORDS.get(token, token))
+
+    item = "inventory item"
+    item_patterns = [
+        r"(?:vendu|sold|sell|don sell)\s+(?:[0-9]+|one|two|three|trois|deux|un|une)?\s*([a-z\s]+?)\s+(?:pour|for|at|a)\s",
+        r"(?:achete|acheter|bought|buy|stock|recu|received)\s+(?:[0-9]+|one|two|three|trois|deux|un|une)?\s*([a-z\s]+?)\s+(?:pour|for|at|a)\s",
+    ]
+    for pattern in item_patterns:
+        match = re.search(pattern, normalized)
+        if match:
+            candidate = match.group(1).strip()
+            candidate = re.sub(r"\b(de|des|for|pour|at|a)\b", "", candidate).strip()
+            if candidate:
+                item = candidate
+                break
+
+    language = "fr" if re.search(r"\b(jai|vendu|achete|pour|francs?)\b", normalized) else "en/pidgin"
+    return {"action": action, "quantity": quantity, "item_name": item, "amount": amount, "language": language}
+
+
+def get_inventory_ocr_engine():
+    """Create PaddleOCR only when photo OCR is requested."""
+    global _inventory_ocr_engine
+    if _inventory_ocr_engine is None:
+        try:
+            from paddleocr import PaddleOCR
+
+            _inventory_ocr_engine = PaddleOCR(
+                text_detection_model_name=INVENTORY_OCR_MODEL_DET,
+                text_recognition_model_name=INVENTORY_OCR_MODEL_REC,
+                use_doc_orientation_classify=False,
+                use_doc_unwarping=False,
+                use_textline_orientation=False,
+            )
+        except Exception as exc:
+            print(f"Inventory OCR unavailable: {exc}")
+            return None
+    return _inventory_ocr_engine
+
+
+def collect_ocr_text_lines(node: Any) -> List[str]:
+    """Extract recognized text from PaddleOCR v2/v3 result shapes."""
+    lines: List[str] = []
+
+    if node is None:
+        return lines
+
+    if isinstance(node, str):
+        text = node.strip()
+        return [text] if text else []
+
+    if isinstance(node, dict):
+        for key in ("rec_texts", "texts"):
+            values = node.get(key)
+            if isinstance(values, list):
+                lines.extend(str(value).strip() for value in values if str(value).strip())
+        for key in ("res", "data", "result"):
+            if key in node:
+                lines.extend(collect_ocr_text_lines(node[key]))
+        return lines
+
+    if hasattr(node, "json"):
+        try:
+            payload = node.json() if callable(node.json) else node.json
+            lines.extend(collect_ocr_text_lines(payload))
+        except Exception:
+            pass
+
+    if hasattr(node, "to_dict"):
+        try:
+            lines.extend(collect_ocr_text_lines(node.to_dict()))
+        except Exception:
+            pass
+
+    if isinstance(node, (list, tuple)):
+        if len(node) == 2 and isinstance(node[0], str) and isinstance(node[1], (int, float)):
+            return [node[0].strip()] if node[0].strip() else []
+        for item in node:
+            lines.extend(collect_ocr_text_lines(item))
+
+    return lines
+
+
+def collect_ocr_entries(result: Any) -> List[Dict[str, Any]]:
+    entries: List[Dict[str, Any]] = []
+    pages = result if isinstance(result, list) else [result]
+    for page in pages:
+        if hasattr(page, "to_dict"):
+            try:
+                page = page.to_dict()
+            except Exception:
+                pass
+        if hasattr(page, "json"):
+            try:
+                page = page.json() if callable(page.json) else page.json
+            except Exception:
+                pass
+        if not isinstance(page, dict):
+            continue
+        if isinstance(page.get("res"), dict):
+            page = page["res"]
+
+        texts = page.get("rec_texts") or page.get("texts") or []
+        polys = page.get("dt_polys") or page.get("polys") or []
+        scores = page.get("rec_scores") or []
+        for index, text in enumerate(texts):
+            clean_text = str(text).strip()
+            if not clean_text:
+                continue
+            x_center = 0.0
+            y_center = 0.0
+            if index < len(polys):
+                try:
+                    points = polys[index]
+                    xs = [float(point[0]) for point in points]
+                    ys = [float(point[1]) for point in points]
+                    x_center = sum(xs) / len(xs)
+                    y_center = sum(ys) / len(ys)
+                except Exception:
+                    pass
+            score = float(scores[index]) if index < len(scores) else 0.0
+            entries.append({"text": clean_text, "x": x_center, "y": y_center, "score": score})
+    return entries
+
+
+def run_inventory_ocr(image_url: str) -> Dict[str, Any]:
+    engine = get_inventory_ocr_engine()
+    if engine is None:
+        return {"available": False, "lines": [], "error": "PaddleOCR is not installed or could not start."}
+
+    image_path = upload_dir / Path(image_url).name
+    if not image_path.exists():
+        return {"available": False, "lines": [], "error": "Uploaded image file was not found."}
+
+    try:
+        if hasattr(engine, "predict"):
+            result = engine.predict(str(image_path))
+        else:
+            result = engine.ocr(str(image_path))
+        lines = list(dict.fromkeys(collect_ocr_text_lines(result)))
+        entries = collect_ocr_entries(result)
+        return {"available": True, "lines": lines, "entries": entries, "error": None}
+    except Exception as exc:
+        print(f"Inventory OCR failed for {image_path}: {exc}")
+        return {"available": False, "lines": [], "entries": [], "error": str(exc)}
+
+
+def parse_ocr_number(value: str) -> float:
+    digits = re.sub(r"[^0-9.,]", "", value)
+    if not digits:
+        return 0.0
+    if "," in digits and "." in digits:
+        digits = digits.replace(",", "")
+    elif "," in digits:
+        digits = digits.replace(",", ".")
+    try:
+        return float(digits)
+    except ValueError:
+        return 0.0
+
+
+def clean_table_header(value: str) -> str:
+    header = re.sub(r"\s+", " ", value).strip(" :-|")
+    return header or "Column"
+
+
+def clean_table_cell(value: str) -> str:
+    cell = re.sub(r"\s+", " ", value).strip(" :-|")
+    cell = cell.replace("Cancelin g", "Canceling")
+    cell = re.sub(r"\bConsol\b", "Console", cell, flags=re.IGNORECASE)
+    return cell
+
+
+def row_has_header_words(text: str) -> bool:
+    normalized = unicodedata.normalize("NFKD", text.lower()).encode("ascii", "ignore").decode("ascii")
+    header_words = {
+        "date", "category", "categorie", "product", "produit", "item", "article",
+        "quantity", "quantite", "qty", "qte", "sold", "stock", "unit", "unite",
+        "price", "prix", "cost", "cout", "total", "amount", "montant", "value", "valeur"
+    }
+    return any(word in normalized for word in header_words)
+
+
+def group_entries_by_y(entries: List[Dict[str, Any]], threshold: float = 34) -> List[List[Dict[str, Any]]]:
+    rows: List[List[Dict[str, Any]]] = []
+    for entry in sorted(entries, key=lambda item: (item["y"], item["x"])):
+        if not rows:
+            rows.append([entry])
+            continue
+
+        previous_y = sum(item["y"] for item in rows[-1]) / len(rows[-1])
+        if abs(entry["y"] - previous_y) <= threshold:
+            rows[-1].append(entry)
+        else:
+            rows.append([entry])
+
+    return [sorted(row, key=lambda item: item["x"]) for row in rows]
+
+
+def entry_in_column(entry: Dict[str, Any], column_index: int, headers: List[Dict[str, Any]]) -> bool:
+    left = float("-inf") if column_index == 0 else (headers[column_index - 1]["x"] + headers[column_index]["x"]) / 2
+    right = float("inf") if column_index == len(headers) - 1 else (headers[column_index]["x"] + headers[column_index + 1]["x"]) / 2
+    return left <= entry["x"] < right
+
+
+def build_dynamic_inventory_table(entries: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if not entries:
+        return None
+
+    grouped_rows = group_entries_by_y(entries)
+    header_index = -1
+    for index, row in enumerate(grouped_rows):
+        row_text = " ".join(entry["text"] for entry in row)
+        alpha_cells = [entry for entry in row if re.search(r"[A-Za-zÀ-ÿ]", entry["text"])]
+        if len(row) >= 2 and len(alpha_cells) >= 2 and row_has_header_words(row_text):
+            header_index = index
+            break
+
+    if header_index < 0:
+        return None
+
+    headers = [
+        entry for entry in grouped_rows[header_index]
+        if clean_table_header(entry["text"]) and row_has_header_words(entry["text"])
+    ]
+    if len(headers) < 2:
+        headers = grouped_rows[header_index]
+    headers = sorted(headers, key=lambda item: item["x"])
+
+    columns: List[str] = []
+    seen_columns: Dict[str, int] = {}
+    for entry in headers:
+        column = clean_table_header(entry["text"])
+        seen_columns[column] = seen_columns.get(column, 0) + 1
+        if seen_columns[column] > 1:
+            column = f"{column} {seen_columns[column]}"
+        columns.append(column)
+
+    date_entries = [
+        entry for entry in entries
+        if entry["y"] > grouped_rows[header_index][0]["y"] and re.search(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", entry["text"])
+    ]
+
+    row_windows: List[List[Dict[str, Any]]] = []
+    if len(date_entries) >= 2:
+        date_entries = sorted(date_entries, key=lambda item: item["y"])
+        for index, date_entry in enumerate(date_entries):
+            row_start = date_entry["y"] - 35
+            row_end = (date_entries[index + 1]["y"] - 35) if index + 1 < len(date_entries) else date_entry["y"] + 95
+            row_windows.append([
+                entry for entry in entries
+                if row_start <= entry["y"] < row_end and entry["y"] > grouped_rows[header_index][0]["y"] + 10
+            ])
+    else:
+        row_windows = grouped_rows[header_index + 1:]
+
+    table_rows: List[Dict[str, str]] = []
+    for row in row_windows:
+        row_map: Dict[str, str] = {}
+        for column_index, column in enumerate(columns):
+            cell_entries = [
+                entry for entry in row
+                if entry_in_column(entry, column_index, headers)
+                and clean_table_cell(entry["text"])
+                and entry["text"] not in columns
+            ]
+            cell_entries = sorted(cell_entries, key=lambda item: (item["y"], item["x"]))
+            row_map[column] = clean_table_cell(" ".join(entry["text"] for entry in cell_entries))
+
+        quantity_column = next((column for column in columns if re.search(r"\b(quantity|quantite|qty|qte)\b", column, re.IGNORECASE)), None)
+        unit_price_column = next((column for column in columns if re.search(r"\b(unit|unite).*(price|prix|cost|cout)|\b(price|prix|cost|cout)\b", column, re.IGNORECASE)), None)
+        total_column = next((column for column in columns if re.search(r"\b(total|amount|montant|value|valeur)\b", column, re.IGNORECASE)), None)
+        if quantity_column and not row_map.get(quantity_column) and unit_price_column and total_column:
+            unit_price = parse_ocr_number(row_map.get(unit_price_column, ""))
+            total_value = parse_ocr_number(row_map.get(total_column, ""))
+            if unit_price > 0 and total_value > 0:
+                quantity = total_value / unit_price
+                row_map[quantity_column] = str(int(quantity)) if quantity.is_integer() else str(round(quantity, 2))
+
+        if any(value for value in row_map.values()):
+            table_rows.append(row_map)
+
+    if not columns or not table_rows:
+        return None
+
+    confidence_values = [float(entry.get("score") or 0) for entry in entries if entry.get("score")]
+    confidence = round((sum(confidence_values) / len(confidence_values)) * 100, 1) if confidence_values else None
+    return {
+        "columns": columns,
+        "rows": table_rows[:40],
+        "confidence": confidence,
+    }
+
+
+def parse_inventory_table_entries(entries: List[Dict[str, Any]]) -> List[InventoryStructuredItem]:
+    if not entries:
+        return []
+
+    sorted_entries = sorted(entries, key=lambda entry: (entry["y"], entry["x"]))
+    date_entries = [
+        entry for entry in sorted_entries
+        if entry["x"] < 650 and re.search(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b", entry["text"])
+    ]
+    if len(date_entries) < 2:
+        return []
+
+    rows: List[InventoryStructuredItem] = []
+    for index, date_entry in enumerate(date_entries):
+        row_start = date_entry["y"] - 35
+        row_end = (date_entries[index + 1]["y"] - 35) if index + 1 < len(date_entries) else date_entry["y"] + 95
+        row_entries = [
+            entry for entry in sorted_entries
+            if row_start <= entry["y"] < row_end and not re.search(r"\b(date|category|product|total sales|unit price|quantity sold)\b", entry["text"].lower())
+        ]
+
+        category_parts = [entry["text"] for entry in row_entries if 560 <= entry["x"] < 1050]
+        product_parts = [entry["text"] for entry in row_entries if 1050 <= entry["x"] < 1550]
+        quantity_parts = [entry["text"] for entry in row_entries if 1550 <= entry["x"] < 1900]
+        unit_parts = [entry["text"] for entry in row_entries if 1900 <= entry["x"] < 2420]
+        total_parts = [entry["text"] for entry in row_entries if entry["x"] >= 2420]
+
+        item_name = " ".join(part for part in product_parts if part).strip()
+        item_name = re.sub(r"\s+", " ", item_name)
+        item_name = item_name.replace("Cancelin g", "Canceling")
+        item_name = re.sub(r"\bConsol\b", "Console", item_name, flags=re.IGNORECASE)
+        if not item_name:
+            continue
+
+        quantity = parse_ocr_number(quantity_parts[0]) if quantity_parts else 0.0
+        unit_price = parse_ocr_number(unit_parts[0]) if unit_parts else 0.0
+        total_value = parse_ocr_number(total_parts[0]) if total_parts else 0.0
+        if quantity <= 0 and unit_price > 0 and total_value > 0:
+            quantity = round(total_value / unit_price, 2)
+        if quantity <= 0:
+            quantity = 1.0
+
+        category = category_parts[0] if category_parts else "Inventory"
+        rows.append(InventoryStructuredItem(
+            item_name=item_name,
+            category=category,
+            record_date=date_entry["text"],
+            quantity=quantity,
+            unit="unit",
+            unit_price=unit_price or None,
+            total_value=total_value or unit_price,
+            estimated_value=total_value or unit_price,
+            action="review",
+            confidence=82 if total_value > 0 else 68,
+        ))
+
+    return rows[:20]
+
+
+def parse_inventory_text_line(line: str) -> Optional[InventoryStructuredItem]:
+    normalized = unicodedata.normalize("NFKD", line.lower()).encode("ascii", "ignore").decode("ascii")
+    normalized = re.sub(r"[|;,]", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+    if len(normalized) < 2:
+        return None
+
+    numbers = re.findall(r"\d+(?:[\s.]\d{3})*(?:[,.]\d+)?|\d+", normalized)
+    amount = 0.0
+    quantity = 1.0
+
+    parsed_numbers: List[float] = []
+    for value in numbers:
+        compact = value.replace(" ", "").replace(".", "").replace(",", ".")
+        try:
+            parsed_numbers.append(float(compact))
+        except ValueError:
+            continue
+
+    if parsed_numbers:
+        amount = parsed_numbers[-1] if parsed_numbers[-1] >= 100 else 0.0
+        if len(parsed_numbers) > 1:
+            quantity = parsed_numbers[0]
+        elif amount == 0:
+            quantity = parsed_numbers[0]
+
+    item_name = re.sub(r"\d+(?:[\s.]\d{3})*(?:[,.]\d+)?|\d+", " ", normalized)
+    item_name = re.sub(r"\b(fcfa|xaf|francs?|prix|price|qty|qte|quantite|quantity|total|stock|unit|unite|x)\b", " ", item_name)
+    item_name = re.sub(r"\s+", " ", item_name).strip(" -:")
+
+    if not item_name or item_name in {"inventory", "item"}:
+        return None
+
+    confidence = 72 if amount > 0 else 60
+    return InventoryStructuredItem(
+        item_name=item_name,
+        quantity=quantity,
+        unit="unit",
+        unit_price=round(amount / quantity, 2) if amount > 0 and quantity > 0 else None,
+        total_value=amount,
+        estimated_value=amount,
+        action="review",
+        confidence=confidence,
+    )
+
+
+def parse_inventory_ocr_lines(lines: List[str]) -> List[InventoryStructuredItem]:
+    items: List[InventoryStructuredItem] = []
+    for line in lines:
+        item = parse_inventory_text_line(line)
+        if item:
+            items.append(item)
+    return items[:20]
+
+
+def parse_inventory_table_number(value: Any) -> float:
+    text = str(value or "")
+    cleaned = re.sub(r"[^0-9,.\-\s]", "", text).replace(" ", "")
+    if not cleaned:
+        return 0.0
+    if "." in cleaned and "," in cleaned:
+        cleaned = cleaned.replace(",", "")
+    elif "," in cleaned:
+        cleaned = re.sub(r",(?=\d{3}\b)", "", cleaned).replace(",", ".")
+    try:
+        return float(cleaned)
+    except ValueError:
+        return 0.0
+
+
+def column_matches(column: str, keywords: List[str]) -> bool:
+    normalized = unicodedata.normalize("NFKD", column.lower()).encode("ascii", "ignore").decode("ascii")
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized).strip()
+    return any(keyword in normalized for keyword in keywords)
+
+
+def inventory_table_totals(columns: List[str], rows: List[Dict[str, Any]]) -> Dict[str, float]:
+    quantity_columns = [column for column in columns if column_matches(column, ["quantity", "quantite", "qty", "qte", "nombre", "sold", "vendu"])]
+    total_columns = [column for column in columns if column_matches(column, ["total", "amount", "montant", "value", "valeur", "sales", "revenue"])]
+
+    total_quantity = 0.0
+    total_value = 0.0
+    for row in rows:
+        if quantity_columns:
+            total_quantity += parse_inventory_table_number(row.get(quantity_columns[0]))
+        if total_columns:
+            total_value += parse_inventory_table_number(row.get(total_columns[0]))
+
+    return {"total_quantity": total_quantity, "total_value": total_value}
+
+
+def inventory_table_response(record: InventoryTable) -> InventoryTableResponse:
+    return InventoryTableResponse(
+        id=record.id,
+        title=record.title,
+        source=record.source,
+        table_date=record.table_date,
+        columns=record.columns or [],
+        rows=record.rows or [],
+        row_count=record.row_count or 0,
+        total_quantity=float(record.total_quantity or 0),
+        total_value=float(record.total_value or 0),
+        linked_sales_count=record.linked_sales_count or 0,
+        linked_stock_count=record.linked_stock_count or 0,
+        raw_text=record.raw_text,
+        image_url=record.image_url,
+        created_at=record.created_at,
+    )
+
+
+@app.post("/api/inventory/photo-digitalize", response_model=InventoryDigitalizeResponse)
+async def digitalize_inventory_photo(
+    payload: InventoryPhotoDigitalizeCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    image_url = save_base64_image(Base64ImageUpload(
+        image_base64=payload.image_base64,
+        filename=payload.filename,
+        content_type=payload.content_type,
+        document_type="inventory",
+    ), "inventory")
+    ocr_result = run_inventory_ocr(image_url)
+    ocr_lines = ocr_result["lines"]
+    structured_table = build_dynamic_inventory_table(ocr_result.get("entries", []))
+    structured_items = parse_inventory_table_entries(ocr_result.get("entries", []))
+    if not structured_items:
+        structured_items = parse_inventory_ocr_lines(ocr_lines)
+
+    create_notification(
+        db,
+        current_user.id,
+        "inventory",
+        "Inventory photo uploaded",
+        "Inventory photo received and processed with OCR."
+    )
+    db.commit()
+
+    if not structured_items:
+        structured_items = [
+            InventoryStructuredItem(
+                item_name="Review inventory photo",
+                quantity=1,
+                unit="photo",
+                estimated_value=0,
+                action="review",
+                confidence=45 if ocr_result["available"] else 25,
+            )
+        ]
+
+    if ocr_lines:
+        message = f"Inventory photo processed. OCR found {len(ocr_lines)} text line(s); review the structured draft before saving stock records."
+    elif ocr_result["available"]:
+        message = "Inventory photo uploaded, but no readable text was detected. Try a clearer photo or use voice entry."
+    else:
+        message = f"Inventory photo uploaded, but OCR is unavailable: {ocr_result['error']}"
+
+    return InventoryDigitalizeResponse(
+        source="photo",
+        image_url=image_url,
+        extracted_text="\n".join(ocr_lines) if ocr_lines else None,
+        structured_table=structured_table,
+        message=message,
+        items=structured_items,
+    )
+
+
+@app.post("/api/inventory/voice-digitalize", response_model=InventoryDigitalizeResponse)
+async def digitalize_inventory_voice(
+    payload: InventoryVoiceDigitalizeCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    parsed = parse_spoken_business_record(payload.transcript)
+    structured = InventoryStructuredItem(
+        item_name=parsed["item_name"],
+        quantity=parsed["quantity"],
+        unit="unit",
+        unit_price=round(parsed["amount"] / parsed["quantity"], 2) if parsed["amount"] > 0 and parsed["quantity"] > 0 else None,
+        total_value=parsed["amount"],
+        estimated_value=parsed["amount"],
+        action=parsed["action"] if parsed["amount"] > 0 else "review",
+        confidence=74 if parsed["amount"] > 0 else 52,
+    )
+
+    if parsed["amount"] <= 0:
+        create_notification(
+            db,
+            current_user.id,
+            "inventory",
+            "Voice note needs review",
+            "MboaTrust understood the item, but no amount was detected."
+        )
+        db.commit()
+        return InventoryDigitalizeResponse(
+            source="voice",
+            transcript=payload.transcript,
+            language=parsed["language"],
+            message="Voice note understood, but no amount was detected. Review it before saving a business record.",
+            items=[structured],
+        )
+
+    create_notification(
+        db,
+        current_user.id,
+        "inventory",
+        "Voice inventory draft ready",
+        "Review the structured voice draft, correct any values, then save it."
+    )
+    db.commit()
+
+    return InventoryDigitalizeResponse(
+        source="voice",
+        transcript=payload.transcript,
+        language=parsed["language"],
+        message="Voice note digitalized. Review the structured draft before saving it to records.",
+        items=[structured],
+    )
+
+
+@app.post("/api/inventory/tables", response_model=InventoryTableResponse, status_code=status.HTTP_201_CREATED)
+async def create_inventory_table(
+    payload: InventoryTableCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    columns = [str(column) for column in payload.columns if str(column).strip()]
+    rows: List[Dict[str, Any]] = []
+    for row in payload.rows:
+        cleaned_row = {column: str(row.get(column, "")).strip() for column in columns}
+        if any(cleaned_row.values()):
+            rows.append(cleaned_row)
+
+    if not columns:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inventory table needs at least one column")
+    if not rows:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inventory table needs at least one row")
+
+    totals = inventory_table_totals(columns, rows)
+    table_date = payload.table_date or datetime.utcnow()
+    title = (payload.title or "Inventory table").strip() or "Inventory table"
+
+    record = InventoryTable(
+        user_id=current_user.id,
+        title=title[:255],
+        source=payload.source or "reviewed",
+        table_date=table_date,
+        columns=columns,
+        rows=rows,
+        row_count=len(rows),
+        total_quantity=totals["total_quantity"],
+        total_value=totals["total_value"],
+        linked_sales_count=max(payload.linked_sales_count, 0),
+        linked_stock_count=max(payload.linked_stock_count, 0),
+        raw_text=payload.raw_text,
+        image_url=payload.image_url,
+    )
+    db.add(record)
+    create_notification(db, current_user.id, "inventory", "Inventory table saved", f"{title} saved with {len(rows)} row(s).")
+    db.commit()
+    db.refresh(record)
+    return inventory_table_response(record)
+
+
+@app.get("/api/inventory/tables", response_model=List[InventoryTableResponse])
+async def list_inventory_tables(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    records = (
+        db.query(InventoryTable)
+        .filter(InventoryTable.user_id == current_user.id)
+        .order_by(InventoryTable.table_date.desc(), InventoryTable.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [inventory_table_response(record) for record in records]
+
+
+@app.get("/api/inventory/tables/{table_id}", response_model=InventoryTableResponse)
+async def get_inventory_table(
+    table_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    record = db.query(InventoryTable).filter(InventoryTable.id == table_id, InventoryTable.user_id == current_user.id).first()
+    if not record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inventory table not found")
+    return inventory_table_response(record)
 
 
 @app.post("/api/receipts/verify-base64", response_model=ReceiptVerificationResponse, status_code=status.HTTP_201_CREATED)

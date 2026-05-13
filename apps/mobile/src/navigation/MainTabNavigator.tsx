@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { HomeNavigator } from './HomeNavigator';
 import { VerifyNavigator } from './VerifyNavigator';
 import { RecordsNavigator } from './RecordsNavigator';
+import { InventoryNavigator } from './InventoryNavigator';
 import { InsightsNavigator } from './InsightsNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 
@@ -22,6 +23,7 @@ const tabs = [
   { name: 'Home' as const,    label: 'Home',    icon: 'home-outline',           iconActive: 'home' },
   { name: 'Verify' as const,  label: 'Verify',  icon: 'shield-outline',         iconActive: 'shield-checkmark' },
   { name: 'Records' as const, label: 'Records', icon: 'document-text-outline',  iconActive: 'document-text' },
+  { name: 'Inventory' as const,label: 'Inventory', icon: 'storefront-outline',   iconActive: 'storefront' },
   { name: 'Insights' as const,label: 'Insights',icon: 'trending-up-outline',    iconActive: 'trending-up' },
   { name: 'Profile' as const, label: 'Profile', icon: 'person-outline',         iconActive: 'person' },
 ];
@@ -37,6 +39,7 @@ export const MainTabNavigator = () => {
       <Tab.Screen name="Home"     component={HomeNavigator} />
       <Tab.Screen name="Verify"   component={VerifyNavigator} />
       <Tab.Screen name="Records"  component={RecordsNavigator} />
+      <Tab.Screen name="Inventory" component={InventoryNavigator} />
       <Tab.Screen name="Insights" component={InsightsNavigator} />
       <Tab.Screen name="Profile"  component={ProfileNavigator} />
     </Tab.Navigator>

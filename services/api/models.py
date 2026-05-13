@@ -102,6 +102,7 @@ class User(Base):
     sales = relationship("SaleRecord", back_populates="user")
     expenses = relationship("ExpenseRecord", back_populates="user")
     stock_items = relationship("StockRecord", back_populates="user")
+    inventory_tables = relationship("InventoryTable", back_populates="user")
     receipt_verifications = relationship("ReceiptVerification", back_populates="user")
     loans_as_borrower = relationship("Loan", foreign_keys="Loan.borrower_id", back_populates="borrower")
     loans_as_lender = relationship("Loan", foreign_keys="Loan.lender_id", back_populates="lender")
@@ -235,6 +236,29 @@ class StockRecord(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="stock_items")
+
+
+class InventoryTable(Base):
+    __tablename__ = "inventory_tables"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    title = Column(String(255), default='Inventory table')
+    source = Column(String(30), default='reviewed')
+    table_date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    columns = Column(JSONB, default=list)
+    rows = Column(JSONB, default=list)
+    row_count = Column(Integer, default=0)
+    total_quantity = Column(DECIMAL(15, 2), default=0)
+    total_value = Column(DECIMAL(15, 2), default=0)
+    linked_sales_count = Column(Integer, default=0)
+    linked_stock_count = Column(Integer, default=0)
+    raw_text = Column(Text)
+    image_url = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="inventory_tables")
 
 
 class ReceiptVerification(Base):

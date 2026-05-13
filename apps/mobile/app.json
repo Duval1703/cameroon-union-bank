@@ -42,7 +42,17 @@
     "plugins": [
       "expo-camera",
       "expo-image-picker",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow MboaTrust AI to use the microphone for voice inventory records.",
+          "speechRecognitionPermission": "Allow MboaTrust AI to convert spoken inventory records into text.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
+        }
+      ]
     ],
     "extra": {
       "eas": {

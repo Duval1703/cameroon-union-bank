@@ -393,6 +393,53 @@ export async function listStockRecords(token: string): Promise<ApiResponse<any[]
   return authenticatedJsonRequest('/api/records/stock', token);
 }
 
+export async function digitalizeInventoryPhoto(
+  token: string,
+  photoUri: string,
+  note?: string
+): Promise<ApiResponse<any>> {
+  try {
+    const imageBase64 = await readImageAsBase64(photoUri);
+    return authenticatedJsonRequest('/api/inventory/photo-digitalize', token, 'POST', {
+      image_base64: imageBase64,
+      filename: photoUri.split('/').pop() || 'inventory.jpg',
+      content_type: getImageMimeType(photoUri),
+      note,
+    });
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error' };
+  }
+}
+
+export async function digitalizeInventoryVoice(
+  token: string,
+  transcript: string,
+  languageHint?: string
+): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest('/api/inventory/voice-digitalize', token, 'POST', {
+    transcript,
+    language_hint: languageHint,
+  });
+}
+
+export async function saveInventoryTable(token: string, payload: {
+  title?: string;
+  source?: string;
+  table_date?: string;
+  columns: string[];
+  rows: Record<string, any>[];
+  raw_text?: string;
+  image_url?: string;
+  linked_sales_count?: number;
+  linked_stock_count?: number;
+}): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest('/api/inventory/tables', token, 'POST', payload);
+}
+
+export async function listInventoryTables(token: string): Promise<ApiResponse<any[]>> {
+  return authenticatedJsonRequest('/api/inventory/tables', token);
+}
+
 export async function verifyReceiptPhoto(
   token: string,
   photoUri: string,

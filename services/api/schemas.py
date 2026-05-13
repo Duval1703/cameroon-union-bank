@@ -336,6 +336,76 @@ class ReceiptVerificationResponse(BaseModel):
         from_attributes = True
 
 
+class InventoryPhotoDigitalizeCreate(BaseModel):
+    image_base64: str
+    filename: str = "inventory.jpg"
+    content_type: str = "image/jpeg"
+    note: Optional[str] = None
+
+
+class InventoryVoiceDigitalizeCreate(BaseModel):
+    transcript: str = Field(..., min_length=3)
+    language_hint: Optional[str] = None
+
+
+class InventoryStructuredItem(BaseModel):
+    item_name: str
+    category: Optional[str] = None
+    record_date: Optional[str] = None
+    quantity: float = 1
+    unit: str = "unit"
+    unit_price: Optional[float] = None
+    total_value: Optional[float] = None
+    estimated_value: float = 0
+    action: str = "review"
+    confidence: float = 0
+
+
+class InventoryTableCreate(BaseModel):
+    title: Optional[str] = "Inventory table"
+    source: str = "reviewed"
+    table_date: Optional[datetime] = None
+    columns: List[str] = Field(default_factory=list)
+    rows: List[Dict[str, Any]] = Field(default_factory=list)
+    raw_text: Optional[str] = None
+    image_url: Optional[str] = None
+    linked_sales_count: int = 0
+    linked_stock_count: int = 0
+
+
+class InventoryTableResponse(BaseModel):
+    id: UUID
+    title: str
+    source: str
+    table_date: datetime
+    columns: List[str]
+    rows: List[Dict[str, Any]]
+    row_count: int
+    total_quantity: float
+    total_value: float
+    linked_sales_count: int
+    linked_stock_count: int
+    raw_text: Optional[str] = None
+    image_url: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class InventoryDigitalizeResponse(BaseModel):
+    source: str
+    message: str
+    language: Optional[str] = None
+    image_url: Optional[str] = None
+    transcript: Optional[str] = None
+    extracted_text: Optional[str] = None
+    structured_table: Optional[Dict[str, Any]] = None
+    items: List[InventoryStructuredItem] = Field(default_factory=list)
+    sales_created: List[SaleRecordResponse] = Field(default_factory=list)
+    stock_created: List[StockRecordResponse] = Field(default_factory=list)
+
+
 class TrustScoreResponse(BaseModel):
     score: int
     rating_tier: str
