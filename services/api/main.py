@@ -84,6 +84,7 @@ CREDIT_SCORING_AGENT_URL = os.getenv("CREDIT_SCORING_AGENT_URL", "http://localho
 INVENTORY_OCR_MODEL_DET = os.getenv("INVENTORY_OCR_MODEL_DET", "PP-OCRv5_mobile_det")
 INVENTORY_OCR_MODEL_REC = os.getenv("INVENTORY_OCR_MODEL_REC", "latin_PP-OCRv5_mobile_rec")
 _inventory_ocr_engine = None
+_inventory_ocr_error = None
 
 
 # ============================================================================
@@ -1003,7 +1004,7 @@ def parse_spoken_business_record(transcript: str) -> Dict[str, Any]:
 
 def get_inventory_ocr_engine():
     """Create PaddleOCR only when photo OCR is requested."""
-    global _inventory_ocr_engine
+    global _inventory_ocr_engine, _inventory_ocr_error
     if _inventory_ocr_engine is None:
         try:
             from paddleocr import PaddleOCR
@@ -1015,8 +1016,10 @@ def get_inventory_ocr_engine():
                 use_doc_unwarping=False,
                 use_textline_orientation=False,
             )
+            _inventory_ocr_error = None
         except Exception as exc:
-            print(f"Inventory OCR unavailable: {exc}")
+            _inventory_ocr_error = f"{type(exc).__name__}: {exc}"
+            print(f"Inventory OCR unavailable: {_inventory_ocr_error}")
             return None
     return _inventory_ocr_engine
 
@@ -1109,7 +1112,12 @@ def collect_ocr_entries(result: Any) -> List[Dict[str, Any]]:
 def run_inventory_ocr(image_url: str) -> Dict[str, Any]:
     engine = get_inventory_ocr_engine()
     if engine is None:
-        return {"available": False, "lines": [], "error": "PaddleOCR is not installed or could not start."}
+        return {
+            "available": False,
+            "lines": [],
+            "entries": [],
+            "error": _inventory_ocr_error or "PaddleOCR is not installed or could not start.",
+        }
 
     image_path = upload_dir / Path(image_url).name
     if not image_path.exists():
@@ -1442,6 +1450,20 @@ def inventory_table_response(record: InventoryTable) -> InventoryTableResponse:
         image_url=record.image_url,
         created_at=record.created_at,
     )
+
+
+@app.get("/api/inventory/ocr-health")
+async def get_inventory_ocr_health(
+    current_user: User = Depends(get_current_active_user)
+):
+    engine = get_inventory_ocr_engine()
+    return {
+        "available": engine is not None,
+        "engine": type(engine).__name__ if engine else None,
+        "det_model": INVENTORY_OCR_MODEL_DET,
+        "rec_model": INVENTORY_OCR_MODEL_REC,
+        "error": _inventory_ocr_error,
+    }
 
 
 @app.post("/api/inventory/photo-digitalize", response_model=InventoryDigitalizeResponse)
