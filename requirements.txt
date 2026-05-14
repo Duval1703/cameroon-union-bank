@@ -30,6 +30,6 @@ python-dateutil==2.8.2
 email-validator==2.1.0
 
 # OCR / vision for inventory photo digitalization
-paddleocr==3.5.0
-paddlepaddle==3.2.2
 opencv-python-headless==4.10.0.84
+pillow==10.4.0
+pytesseract==0.3.13

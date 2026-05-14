@@ -83,6 +83,7 @@ DATA_COLLECTION_AGENT_URL = os.getenv("DATA_COLLECTION_AGENT_URL", "http://local
 CREDIT_SCORING_AGENT_URL = os.getenv("CREDIT_SCORING_AGENT_URL", "http://localhost:8002")
 INVENTORY_OCR_MODEL_DET = os.getenv("INVENTORY_OCR_MODEL_DET", "PP-OCRv5_mobile_det")
 INVENTORY_OCR_MODEL_REC = os.getenv("INVENTORY_OCR_MODEL_REC", "latin_PP-OCRv5_mobile_rec")
+INVENTORY_OCR_ENGINE = os.getenv("INVENTORY_OCR_ENGINE", "tesseract").lower()
 _inventory_ocr_engine = None
 _inventory_ocr_error = None
 
@@ -1005,6 +1006,9 @@ def parse_spoken_business_record(transcript: str) -> Dict[str, Any]:
 def get_inventory_ocr_engine():
     """Create PaddleOCR only when photo OCR is requested."""
     global _inventory_ocr_engine, _inventory_ocr_error
+    if INVENTORY_OCR_ENGINE != "paddle":
+        return None
+
     if _inventory_ocr_engine is None:
         try:
             from paddleocr import PaddleOCR
@@ -1022,6 +1026,72 @@ def get_inventory_ocr_engine():
             print(f"Inventory OCR unavailable: {_inventory_ocr_error}")
             return None
     return _inventory_ocr_engine
+
+
+def run_tesseract_inventory_ocr(image_path: Path) -> Dict[str, Any]:
+    try:
+        from PIL import Image
+        import pytesseract
+
+        image = Image.open(image_path)
+        data = pytesseract.image_to_data(
+            image,
+            lang="eng+fra",
+            output_type=pytesseract.Output.DICT,
+            config="--psm 6",
+        )
+
+        entries: List[Dict[str, Any]] = []
+        line_parts: Dict[tuple, List[Dict[str, Any]]] = {}
+        for index, raw_text in enumerate(data.get("text", [])):
+            text = str(raw_text).strip()
+            try:
+                confidence = float(data.get("conf", ["0"])[index])
+            except (TypeError, ValueError):
+                confidence = 0.0
+            if not text or confidence < 20:
+                continue
+
+            left = float(data.get("left", [0])[index])
+            top = float(data.get("top", [0])[index])
+            width = float(data.get("width", [0])[index])
+            height = float(data.get("height", [0])[index])
+            entry = {
+                "text": text,
+                "x": left + width / 2,
+                "y": top + height / 2,
+                "score": max(confidence, 0) / 100,
+            }
+            entries.append(entry)
+            key = (
+                data.get("block_num", [0])[index],
+                data.get("par_num", [0])[index],
+                data.get("line_num", [0])[index],
+            )
+            line_parts.setdefault(key, []).append({**entry, "left": left})
+
+        lines: List[str] = []
+        for parts in line_parts.values():
+            ordered = sorted(parts, key=lambda item: item["left"])
+            line = " ".join(part["text"] for part in ordered).strip()
+            if line:
+                lines.append(line)
+
+        return {
+            "available": True,
+            "lines": list(dict.fromkeys(lines)),
+            "entries": entries,
+            "error": None,
+            "engine": "tesseract",
+        }
+    except Exception as exc:
+        return {
+            "available": False,
+            "lines": [],
+            "entries": [],
+            "error": f"Tesseract OCR failed: {type(exc).__name__}: {exc}",
+            "engine": "tesseract",
+        }
 
 
 def collect_ocr_text_lines(node: Any) -> List[str]:
@@ -1110,6 +1180,13 @@ def collect_ocr_entries(result: Any) -> List[Dict[str, Any]]:
 
 
 def run_inventory_ocr(image_url: str) -> Dict[str, Any]:
+    image_path = upload_dir / Path(image_url).name
+    if not image_path.exists():
+        return {"available": False, "lines": [], "error": "Uploaded image file was not found."}
+
+    if INVENTORY_OCR_ENGINE != "paddle":
+        return run_tesseract_inventory_ocr(image_path)
+
     engine = get_inventory_ocr_engine()
     if engine is None:
         return {
@@ -1119,10 +1196,6 @@ def run_inventory_ocr(image_url: str) -> Dict[str, Any]:
             "error": _inventory_ocr_error or "PaddleOCR is not installed or could not start.",
         }
 
-    image_path = upload_dir / Path(image_url).name
-    if not image_path.exists():
-        return {"available": False, "lines": [], "error": "Uploaded image file was not found."}
-
     try:
         if hasattr(engine, "predict"):
             result = engine.predict(str(image_path))
@@ -1130,7 +1203,7 @@ def run_inventory_ocr(image_url: str) -> Dict[str, Any]:
             result = engine.ocr(str(image_path))
         lines = list(dict.fromkeys(collect_ocr_text_lines(result)))
         entries = collect_ocr_entries(result)
-        return {"available": True, "lines": lines, "entries": entries, "error": None}
+        return {"available": True, "lines": lines, "entries": entries, "error": None, "engine": "paddle"}
     except Exception as exc:
         print(f"Inventory OCR failed for {image_path}: {exc}")
         return {"available": False, "lines": [], "entries": [], "error": str(exc)}
@@ -1456,10 +1529,30 @@ def inventory_table_response(record: InventoryTable) -> InventoryTableResponse:
 async def get_inventory_ocr_health(
     current_user: User = Depends(get_current_active_user)
 ):
+    if INVENTORY_OCR_ENGINE != "paddle":
+        try:
+            import pytesseract
+            version = str(pytesseract.get_tesseract_version())
+            return {
+                "available": True,
+                "engine": "tesseract",
+                "selected_engine": INVENTORY_OCR_ENGINE,
+                "version": version,
+                "error": None,
+            }
+        except Exception as exc:
+            return {
+                "available": False,
+                "engine": "tesseract",
+                "selected_engine": INVENTORY_OCR_ENGINE,
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+
     engine = get_inventory_ocr_engine()
     return {
         "available": engine is not None,
         "engine": type(engine).__name__ if engine else None,
+        "selected_engine": INVENTORY_OCR_ENGINE,
         "det_model": INVENTORY_OCR_MODEL_DET,
         "rec_model": INVENTORY_OCR_MODEL_REC,
         "error": _inventory_ocr_error,

@@ -15,6 +15,9 @@ RUN apt-get update \
         libsm6 \
         libxext6 \
         libxrender1 \
+        tesseract-ocr \
+        tesseract-ocr-eng \
+        tesseract-ocr-fra \
         curl \
     && rm -rf /var/lib/apt/lists/*
 

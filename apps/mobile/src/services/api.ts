@@ -87,6 +87,21 @@ function getApiErrorMessage(data: any, fallback: string): string {
   return fallback;
 }
 
+async function parseApiResponseBody(response: Response): Promise<any> {
+  const text = await response.text();
+  if (!text.trim()) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {
+      error: text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400),
+    };
+  }
+}
+
 async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
   if (!__DEV__) {
     return fetch(`${API_BASE_URL}${path}`, init);
@@ -330,10 +345,13 @@ async function authenticatedJsonRequest(
       },
       body: body ? JSON.stringify(body) : undefined,
     });
-    const data = response.status === 204 ? {} : await response.json();
+    const data = response.status === 204 ? {} : await parseApiResponseBody(response);
 
     if (!response.ok) {
-      return { success: false, error: getApiErrorMessage(data, 'Request failed') };
+      return {
+        success: false,
+        error: getApiErrorMessage(data, `Request failed with HTTP ${response.status}`),
+      };
     }
 
     return { success: true, data };
