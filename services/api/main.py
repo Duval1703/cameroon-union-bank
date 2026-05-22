@@ -1271,6 +1271,7 @@ def run_remote_inventory_ocr(image_path: Path) -> Optional[Dict[str, Any]]:
             "available": bool(payload.get("available", True)),
             "lines": list(dict.fromkeys(str(line).strip() for line in lines if str(line).strip())),
             "entries": normalize_remote_ocr_entries(payload.get("entries")),
+            "structured_table": payload.get("structured_table") if isinstance(payload.get("structured_table"), dict) else None,
             "error": payload.get("error"),
             "engine": payload.get("engine", "remote-paddleocr"),
         }
@@ -1659,6 +1660,60 @@ def inventory_table_response(record: InventoryTable) -> InventoryTableResponse:
     )
 
 
+def parse_inventory_structured_table_items(structured_table: Optional[Dict[str, Any]]) -> List[InventoryStructuredItem]:
+    if not structured_table:
+        return []
+
+    columns = [str(column) for column in structured_table.get("columns", [])]
+    rows = structured_table.get("rows", [])
+    if not columns or not isinstance(rows, list):
+        return []
+
+    def find_table_column(keywords: List[str]) -> Optional[str]:
+        for column in columns:
+            if column_matches(column, keywords):
+                return column
+        return None
+
+    item_column = find_table_column(["item name", "product name", "item", "product", "article", "description", "name", "nom"])
+    quantity_column = find_table_column(["quantity", "quantite", "qty", "qte", "nombre"])
+    price_column = find_table_column(["unit price", "price", "prix", "cost", "cout"])
+    total_column = find_table_column(["total", "amount", "montant", "value", "valeur"])
+    supplier_column = find_table_column(["supplier", "vendor", "company", "provider", "fournisseur"])
+
+    items: List[InventoryStructuredItem] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+
+        item_name = str(row.get(item_column, "") if item_column else "").strip()
+        if not item_name:
+            continue
+
+        quantity = parse_inventory_table_number(row.get(quantity_column, "")) if quantity_column else 1.0
+        unit_price = parse_inventory_table_number(row.get(price_column, "")) if price_column else 0.0
+        total_value = parse_inventory_table_number(row.get(total_column, "")) if total_column else 0.0
+        if total_value <= 0 and unit_price > 0 and quantity > 0:
+            total_value = unit_price * quantity
+        if quantity <= 0:
+            quantity = 1.0
+
+        supplier = str(row.get(supplier_column, "") if supplier_column else "").strip()
+        items.append(InventoryStructuredItem(
+            item_name=item_name,
+            category=supplier or "Inventory",
+            quantity=quantity,
+            unit="unit",
+            unit_price=unit_price if unit_price > 0 else None,
+            total_value=total_value if total_value > 0 else None,
+            estimated_value=total_value if total_value > 0 else unit_price,
+            action="stock",
+            confidence=float(structured_table.get("confidence") or 80),
+        ))
+
+    return items
+
+
 @app.get("/api/inventory/ocr-health")
 async def get_inventory_ocr_health(
     current_user: User = Depends(get_current_active_user)
@@ -1707,8 +1762,10 @@ async def digitalize_inventory_photo(
     ), "inventory")
     ocr_result = run_inventory_ocr(image_url)
     ocr_lines = ocr_result["lines"]
-    structured_table = build_dynamic_inventory_table(ocr_result.get("entries", []))
-    structured_items = parse_inventory_table_entries(ocr_result.get("entries", []))
+    structured_table = ocr_result.get("structured_table") or build_dynamic_inventory_table(ocr_result.get("entries", []))
+    structured_items = parse_inventory_structured_table_items(structured_table)
+    if not structured_items:
+        structured_items = parse_inventory_table_entries(ocr_result.get("entries", []))
     if not structured_items:
         structured_items = parse_inventory_ocr_lines(ocr_lines)
 
