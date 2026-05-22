@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const DATA_AGENT_FALLBACK = 'http://192.168.100.166:8001';
-const PRODUCTION_DATA_AGENT_URL = process.env.EXPO_PUBLIC_DATA_AGENT_URL || 'https://data.mboatrust.ai';
+const PRODUCTION_DATA_AGENT_URL = process.env.EXPO_PUBLIC_DATA_AGENT_URL || 'https://mboatrust-data-collection.onrender.com';
 
 export type MoneyProvider = 'MTN' | 'ORANGE';
 

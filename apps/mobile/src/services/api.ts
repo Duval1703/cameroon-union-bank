@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 
 const DEV_API_FALLBACK = 'http://192.168.100.166:8003';
-const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.mboatrust.ai';
+const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://mboatrust-api.onrender.com';
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -50,6 +50,10 @@ function extractHost(hostUri?: string): string | null {
 }
 
 function getDevApiBaseUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
   const constants = Constants as any;
   const host = extractHost(
     Constants.expoConfig?.hostUri ||
@@ -68,6 +72,7 @@ function getDevApiBaseUrls(): string[] {
 
   return Array.from(new Set([
     primary,
+    PRODUCTION_API_URL,
     DEV_API_FALLBACK,
     ...androidFallbackUrls,
   ]));
@@ -348,6 +353,13 @@ async function authenticatedJsonRequest(
     const data = response.status === 204 ? {} : await parseApiResponseBody(response);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        return {
+          success: false,
+          error: 'Your session expired. Please log out and sign in again.',
+        };
+      }
+
       return {
         success: false,
         error: getApiErrorMessage(data, `Request failed with HTTP ${response.status}`),
