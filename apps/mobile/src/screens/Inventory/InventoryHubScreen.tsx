@@ -451,6 +451,7 @@ export const InventoryHubScreen = () => {
     const normalized = column.toLowerCase();
     if (normalized.includes('date')) return rs(82);
     if (normalized.includes('product') || normalized.includes('produit') || normalized.includes('item') || normalized.includes('article')) return rs(150);
+    if (normalized.includes('supplier') || normalized.includes('vendor') || normalized.includes('company') || normalized.includes('fournisseur')) return rs(160);
     if (normalized.includes('category') || normalized.includes('categorie')) return rs(110);
     if (normalized.includes('quantity') || normalized.includes('quant') || normalized.includes('qty') || normalized.includes('qte')) return rs(88);
     if (normalized.includes('price') || normalized.includes('prix') || normalized.includes('cost') || normalized.includes('total') || normalized.includes('amount') || normalized.includes('montant')) return rs(126);
@@ -638,7 +639,7 @@ export const InventoryHubScreen = () => {
                     <Text style={styles.addRowText}>Row</Text>
                   </TouchableOpacity>
                 </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tableScroll}>
+                <ScrollView horizontal showsHorizontalScrollIndicator style={styles.tableScroll}>
                   <View>
                     <View style={[styles.tableRow, styles.tableHeaderRow]}>
                       {tableColumns.map((column: string) => (

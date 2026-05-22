@@ -1196,16 +1196,31 @@ def normalize_remote_ocr_entries(entries: Any) -> List[Dict[str, Any]]:
 
         x_center = 0.0
         y_center = 0.0
+        left = 0.0
+        top = 0.0
+        right = 0.0
+        bottom = 0.0
         box = entry.get("box")
         if isinstance(box, list) and box:
             try:
                 xs = [float(point[0]) for point in box if isinstance(point, (list, tuple)) and len(point) >= 2]
                 ys = [float(point[1]) for point in box if isinstance(point, (list, tuple)) and len(point) >= 2]
                 if xs and ys:
+                    left = min(xs)
+                    top = min(ys)
+                    right = max(xs)
+                    bottom = max(ys)
                     x_center = sum(xs) / len(xs)
                     y_center = sum(ys) / len(ys)
             except Exception:
                 pass
+        else:
+            try:
+                x_center = float(entry.get("x") or 0.0)
+                y_center = float(entry.get("y") or 0.0)
+            except (TypeError, ValueError):
+                x_center = 0.0
+                y_center = 0.0
 
         try:
             score = float(entry.get("score", entry.get("confidence", 0.0)) or 0.0)
@@ -1216,6 +1231,10 @@ def normalize_remote_ocr_entries(entries: Any) -> List[Dict[str, Any]]:
             "text": text,
             "x": x_center,
             "y": y_center,
+            "left": left,
+            "top": top,
+            "right": right,
+            "bottom": bottom,
             "score": score,
         })
 
@@ -1310,11 +1329,30 @@ def parse_ocr_number(value: str) -> float:
 
 def clean_table_header(value: str) -> str:
     header = re.sub(r"\s+", " ", value).strip(" :-|")
+    header = re.sub(r"^[\[\](){}/\\]+|[\[\](){}/\\]+$", "", header).strip()
+    normalized = unicodedata.normalize("NFKD", header.lower()).encode("ascii", "ignore").decode("ascii")
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized).strip()
+
+    canonical_headers = [
+        (["item id", "id item", "item no", "item number"], "Item ID"),
+        (["item name", "product name", "item", "product", "article", "description", "ltem"], "Item Name"),
+        (["quantity", "quantite", "qty", "qte"], "Quantity"),
+        (["unit price", "price", "prix", "cost", "cout"], "Price"),
+        (["supplier", "vendor", "company", "provider", "fournisseur"], "Supplier"),
+        (["total", "amount", "montant", "value", "valeur"], "Total"),
+        (["date", "jour"], "Date"),
+        (["category", "categorie", "type"], "Category"),
+    ]
+    for aliases, canonical in canonical_headers:
+        if any(alias == normalized or alias in normalized for alias in aliases):
+            return canonical
+
     return header or "Column"
 
 
 def clean_table_cell(value: str) -> str:
     cell = re.sub(r"\s+", " ", value).strip(" :-|")
+    cell = re.sub(r"^[\[\]{}]+|[\[\]{}]+$", "", cell).strip()
     cell = cell.replace("Cancelin g", "Canceling")
     cell = re.sub(r"\bConsol\b", "Console", cell, flags=re.IGNORECASE)
     return cell
@@ -1325,12 +1363,22 @@ def row_has_header_words(text: str) -> bool:
     header_words = {
         "date", "category", "categorie", "product", "produit", "item", "article",
         "quantity", "quantite", "qty", "qte", "sold", "stock", "unit", "unite",
-        "price", "prix", "cost", "cout", "total", "amount", "montant", "value", "valeur"
+        "price", "prix", "cost", "cout", "total", "amount", "montant", "value", "valeur",
+        "supplier", "vendor", "company", "provider", "fournisseur", "name", "nom", "description"
     }
     return any(word in normalized for word in header_words)
 
 
-def group_entries_by_y(entries: List[Dict[str, Any]], threshold: float = 34) -> List[List[Dict[str, Any]]]:
+def group_entries_by_y(entries: List[Dict[str, Any]], threshold: Optional[float] = None) -> List[List[Dict[str, Any]]]:
+    if threshold is None:
+        heights = [
+            float(entry.get("bottom", 0)) - float(entry.get("top", 0))
+            for entry in entries
+            if float(entry.get("bottom", 0)) > float(entry.get("top", 0))
+        ]
+        average_height = sum(heights) / len(heights) if heights else 22
+        threshold = max(18, min(42, average_height * 0.85))
+
     rows: List[List[Dict[str, Any]]] = []
     for entry in sorted(entries, key=lambda item: (item["y"], item["x"])):
         if not rows:
@@ -1369,8 +1417,9 @@ def build_dynamic_inventory_table(entries: List[Dict[str, Any]]) -> Optional[Dic
         return None
 
     headers = [
-        entry for entry in grouped_rows[header_index]
-        if clean_table_header(entry["text"]) and row_has_header_words(entry["text"])
+        {**entry, "text": clean_table_header(entry["text"])}
+        for entry in grouped_rows[header_index]
+        if clean_table_header(entry["text"])
     ]
     if len(headers) < 2:
         headers = grouped_rows[header_index]
@@ -1411,7 +1460,7 @@ def build_dynamic_inventory_table(entries: List[Dict[str, Any]]) -> Optional[Dic
                 entry for entry in row
                 if entry_in_column(entry, column_index, headers)
                 and clean_table_cell(entry["text"])
-                and entry["text"] not in columns
+                and clean_table_header(entry["text"]) not in columns
             ]
             cell_entries = sorted(cell_entries, key=lambda item: (item["y"], item["x"]))
             row_map[column] = clean_table_cell(" ".join(entry["text"] for entry in cell_entries))
