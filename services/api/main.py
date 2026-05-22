@@ -84,6 +84,8 @@ CREDIT_SCORING_AGENT_URL = os.getenv("CREDIT_SCORING_AGENT_URL", "http://localho
 INVENTORY_OCR_MODEL_DET = os.getenv("INVENTORY_OCR_MODEL_DET", "PP-OCRv5_mobile_det")
 INVENTORY_OCR_MODEL_REC = os.getenv("INVENTORY_OCR_MODEL_REC", "latin_PP-OCRv5_mobile_rec")
 INVENTORY_OCR_ENGINE = os.getenv("INVENTORY_OCR_ENGINE", "tesseract").lower()
+INVENTORY_OCR_SERVICE_URL = os.getenv("INVENTORY_OCR_SERVICE_URL", "").rstrip("/")
+INVENTORY_OCR_SERVICE_KEY = os.getenv("INVENTORY_OCR_SERVICE_KEY", "")
 _inventory_ocr_engine = None
 _inventory_ocr_error = None
 
@@ -1179,10 +1181,93 @@ def collect_ocr_entries(result: Any) -> List[Dict[str, Any]]:
     return entries
 
 
+def normalize_remote_ocr_entries(entries: Any) -> List[Dict[str, Any]]:
+    normalized_entries: List[Dict[str, Any]] = []
+    if not isinstance(entries, list):
+        return normalized_entries
+
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+
+        text = str(entry.get("text") or "").strip()
+        if not text:
+            continue
+
+        x_center = 0.0
+        y_center = 0.0
+        box = entry.get("box")
+        if isinstance(box, list) and box:
+            try:
+                xs = [float(point[0]) for point in box if isinstance(point, (list, tuple)) and len(point) >= 2]
+                ys = [float(point[1]) for point in box if isinstance(point, (list, tuple)) and len(point) >= 2]
+                if xs and ys:
+                    x_center = sum(xs) / len(xs)
+                    y_center = sum(ys) / len(ys)
+            except Exception:
+                pass
+
+        try:
+            score = float(entry.get("score", entry.get("confidence", 0.0)) or 0.0)
+        except (TypeError, ValueError):
+            score = 0.0
+
+        normalized_entries.append({
+            "text": text,
+            "x": x_center,
+            "y": y_center,
+            "score": score,
+        })
+
+    return normalized_entries
+
+
+def run_remote_inventory_ocr(image_path: Path) -> Optional[Dict[str, Any]]:
+    if not INVENTORY_OCR_SERVICE_URL:
+        return None
+
+    try:
+        image_base64 = base64.b64encode(image_path.read_bytes()).decode("ascii")
+        headers = {"Content-Type": "application/json"}
+        if INVENTORY_OCR_SERVICE_KEY:
+            headers["X-API-Key"] = INVENTORY_OCR_SERVICE_KEY
+
+        response = httpx.post(
+            f"{INVENTORY_OCR_SERVICE_URL}/ocr/inventory",
+            json={
+                "image_base64": image_base64,
+                "filename": image_path.name,
+            },
+            headers=headers,
+            timeout=120,
+        )
+        response.raise_for_status()
+        payload = response.json()
+
+        lines = payload.get("lines") or []
+        if not isinstance(lines, list):
+            lines = []
+
+        return {
+            "available": bool(payload.get("available", True)),
+            "lines": list(dict.fromkeys(str(line).strip() for line in lines if str(line).strip())),
+            "entries": normalize_remote_ocr_entries(payload.get("entries")),
+            "error": payload.get("error"),
+            "engine": payload.get("engine", "remote-paddleocr"),
+        }
+    except Exception as exc:
+        print(f"Remote inventory OCR failed for {image_path}: {type(exc).__name__}: {exc}")
+        return None
+
+
 def run_inventory_ocr(image_url: str) -> Dict[str, Any]:
     image_path = upload_dir / Path(image_url).name
     if not image_path.exists():
-        return {"available": False, "lines": [], "error": "Uploaded image file was not found."}
+        return {"available": False, "lines": [], "entries": [], "error": "Uploaded image file was not found."}
+
+    remote_result = run_remote_inventory_ocr(image_path)
+    if remote_result is not None:
+        return remote_result
 
     if INVENTORY_OCR_ENGINE != "paddle":
         return run_tesseract_inventory_ocr(image_path)
