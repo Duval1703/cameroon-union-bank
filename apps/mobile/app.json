@@ -17,7 +17,9 @@
       "bundleIdentifier": "com.cameroonunionbank.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Cameroon Union Bank uses the camera for identity verification and secure document capture.",
-        "NSPhotoLibraryUsageDescription": "Cameroon Union Bank accesses your photo library to select identity and financial documents."
+        "NSPhotoLibraryUsageDescription": "Cameroon Union Bank accesses your photo library to select identity and financial documents.",
+        "NSSpeechRecognitionUsageDescription": "Allow Cameroon Union Bank to convert spoken financial records into text.",
+        "NSMicrophoneUsageDescription": "Allow Cameroon Union Bank to use the microphone for assisted financial records."
       }
     },
     "android": {
@@ -56,9 +58,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "06595bf0-b8ed-434f-837b-05ab619c0f16"
+        "projectId": "5ef8719c-28c9-4a6f-a0c4-86b0f47784e0"
       }
     },
-    "owner": "duval1703"
+    "owner": "duval17034"
   }
 }
