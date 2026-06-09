@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mboatrust-api
+    name: cub-api
     runtime: docker
     plan: free
     dockerfilePath: ./services/api/Dockerfile
@@ -9,16 +9,16 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: mboatrust-db
+          name: cub-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_ORIGINS
         value: "*"
       - key: DATA_COLLECTION_AGENT_URL
-        value: https://mboatrust-data-collection.onrender.com
+        value: https://cub-data-collection.onrender.com
       - key: CREDIT_SCORING_AGENT_URL
-        value: https://mboatrust-credit-scoring.onrender.com
+        value: https://cub-credit-scoring.onrender.com
       - key: INVENTORY_OCR_SERVICE_URL
         value: http://178.128.164.89
       - key: INVENTORY_OCR_SERVICE_KEY
@@ -27,7 +27,7 @@ services:
         value: tesseract
 
   - type: web
-    name: mboatrust-data-collection
+    name: cub-data-collection
     runtime: docker
     plan: free
     dockerfilePath: ./services/data-collection/Dockerfile
@@ -35,12 +35,12 @@ services:
     healthCheckPath: /health
     envVars:
       - key: MTN_ORANGE_SERVER_URL
-        value: https://mboatrust-provider-simulator.onrender.com
+        value: https://cub-provider-simulator.onrender.com
       - key: PUBLIC_DATA_AGENT_URL
-        value: https://mboatrust-data-collection.onrender.com
+        value: https://cub-data-collection.onrender.com
 
   - type: web
-    name: mboatrust-provider-simulator
+    name: cub-provider-simulator
     runtime: docker
     plan: free
     dockerfilePath: ./services/data-collection/Dockerfile.provider
@@ -48,10 +48,10 @@ services:
     healthCheckPath: /health
     envVars:
       - key: PUBLIC_PROVIDER_URL
-        value: https://mboatrust-provider-simulator.onrender.com
+        value: https://cub-provider-simulator.onrender.com
 
   - type: web
-    name: mboatrust-credit-scoring
+    name: cub-credit-scoring
     runtime: docker
     plan: free
     dockerfilePath: ./services/credit-scoring/Dockerfile
@@ -59,7 +59,7 @@ services:
     healthCheckPath: /health
 
 databases:
-  - name: mboatrust-db
+  - name: cub-db
     plan: free
-    databaseName: mboatrust
-    user: mboatrust_user
+    databaseName: cub
+    user: cub_user
