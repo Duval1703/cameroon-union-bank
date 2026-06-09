@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MboaTrust AI",
-    "slug": "mboatrust-ai",
+    "name": "Cameroon Union Bank",
+    "slug": "cameroon-union-bank",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,22 +10,22 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1B5E4B"
+      "backgroundColor": "#002853"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.mboatrust.ai",
+      "bundleIdentifier": "com.cameroonunionbank.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "MboaTrust AI uses the camera to capture payment receipts for verification.",
-        "NSPhotoLibraryUsageDescription": "MboaTrust AI accesses your photo library to select payment receipts for verification."
+        "NSCameraUsageDescription": "Cameroon Union Bank uses the camera for identity verification and secure document capture.",
+        "NSPhotoLibraryUsageDescription": "Cameroon Union Bank accesses your photo library to select identity and financial documents."
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1B5E4B"
+        "backgroundColor": "#002853"
       },
-      "package": "com.mboatrust.ai",
+      "package": "com.cameroonunionbank.app",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -46,8 +46,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Allow MboaTrust AI to use the microphone for voice inventory records.",
-          "speechRecognitionPermission": "Allow MboaTrust AI to convert spoken inventory records into text.",
+          "microphonePermission": "Allow Cameroon Union Bank to use the microphone for assisted financial records.",
+          "speechRecognitionPermission": "Allow Cameroon Union Bank to convert spoken financial records into text.",
           "androidSpeechServicePackages": [
             "com.google.android.googlequicksearchbox"
           ]

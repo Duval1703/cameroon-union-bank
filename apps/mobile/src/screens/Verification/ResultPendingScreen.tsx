@@ -47,7 +47,7 @@ export const ResultPendingScreen = () => {
             <Text style={styles.pendingBadgeText}>VERIFICATION PENDING</Text>
           </View>
           <Text style={styles.resultTitle}>Analysis in Progress</Text>
-          <Text style={styles.resultSub}>This receipt needs more information before it can fully count toward your Trust Score.</Text>
+          <Text style={styles.resultSub}>This document needs more information before it can fully count toward your CUB Score.</Text>
         </Animated.View>
 
         <Animated.View style={[styles.stepsCard, { opacity: fadeAnim }]}>

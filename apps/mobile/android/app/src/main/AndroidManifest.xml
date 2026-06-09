@@ -32,8 +32,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.mboatrust.ai"/>
-        <data android:scheme="exp+mboatrust-ai"/>
+        <data android:scheme="com.cameroonunionbank.app"/>
+        <data android:scheme="exp+cameroon-union-bank"/>
       </intent-filter>
     </activity>
   </application>

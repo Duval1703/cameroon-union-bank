@@ -62,7 +62,7 @@ export type RecordsStackParamList = {
 };
 
 export type InventoryStackParamList = {
-  InventoryHub: undefined;
+  RepaymentHub: undefined;
 };
 
 export type InsightsStackParamList = {

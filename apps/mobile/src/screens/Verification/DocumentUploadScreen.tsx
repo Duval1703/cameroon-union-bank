@@ -25,7 +25,7 @@ export const DocumentUploadScreen = () => {
   const uploadSide = async (side: DocumentSide) => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Camera permission needed', 'MboaTrust needs camera access to capture your identity document.');
+      Alert.alert('Camera permission needed', 'Cameroon Union Bank needs camera access to capture your identity document.');
       return;
     }
 
@@ -69,7 +69,7 @@ export const DocumentUploadScreen = () => {
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={rs(20)} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Merchant ID KYC</Text>
+          <Text style={styles.headerTitle}>CUB Identity KYC</Text>
           <View style={{ width: rs(36) }} />
         </View>
         <Text style={styles.headerSub}>Verify the trader behind the business profile.</Text>

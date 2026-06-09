@@ -13,9 +13,9 @@ import { loginUser } from '../../services/api';
 import { saveAuthToken, saveUserData } from '../../services/storage';
 
 const features = [
-  { icon: 'shield-checkmark', color: '#059669', bg: '#ECFDF5', label: 'Bank-grade Security' },
-  { icon: 'flash',            color: '#F59E0B', bg: '#FFFBEB', label: 'AI-Powered Insights' },
-  { icon: 'wifi',             color: '#3B82F6', bg: '#EFF6FF', label: 'Works Offline' },
+  { icon: 'shield-checkmark', color: '#002853', bg: '#DCE7F3', label: 'Bank-grade Security' },
+  { icon: 'flash',            color: '#735C00', bg: '#FFF7D1', label: 'AI Credit Scoring' },
+  { icon: 'wallet',           color: '#1F5D9A', bg: '#EFF6FF', label: 'MoMo Ready' },
 ];
 
 export const LoginScreen = () => {
@@ -63,24 +63,24 @@ export const LoginScreen = () => {
       <StatusBar style="light" />
 
       {/* Hero gradient header */}
-      <LinearGradient colors={['#061E14', '#0D4A35', '#1B5E4B']} style={styles.hero}>
+      <LinearGradient colors={['#00172F', '#002853', '#133E72']} style={styles.hero}>
         <View style={styles.heroOrb} />
         <Animated.View style={[styles.heroContent, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <View style={styles.logoCircle}>
             <Ionicons name="shield-checkmark" size={rs(32)} color="#fff" />
           </View>
-          <Text style={styles.brand}>MboaTrust AI</Text>
-          <Text style={styles.tagline}>Your merchant trust network</Text>
+          <Text style={styles.brand}>Cameroon Union Bank</Text>
+          <Text style={styles.tagline}>AI financial identity and P2P lending</Text>
 
           <View style={styles.socialProof}>
             <View style={styles.avatarStack}>
-              {['#2D8A65','#F5A623','#3B82F6'].map((c, i) => (
+              {['#002853','#F0D980','#1F5D9A'].map((c, i) => (
                 <View key={i} style={[styles.avatar, { backgroundColor: c, marginLeft: i > 0 ? rs(-10) : 0 }]}>
                   <Ionicons name="person" size={rs(12)} color="#fff" />
                 </View>
               ))}
             </View>
-            <Text style={styles.proofText}>1,200+ merchants trust MboaTrust AI</Text>
+            <Text style={styles.proofText}>Built for borrowers, lenders, and guardians</Text>
           </View>
         </Animated.View>
       </LinearGradient>
@@ -89,7 +89,7 @@ export const LoginScreen = () => {
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
           <Text style={styles.cardTitle}>Welcome back</Text>
-          <Text style={styles.cardSub}>Sign in to your merchant account</Text>
+          <Text style={styles.cardSub}>Sign in to your CUB financial profile</Text>
 
           <View style={styles.form}>
             <View style={styles.phoneWrap}>
@@ -99,7 +99,7 @@ export const LoginScreen = () => {
               </View>
               <TextInput
                 style={styles.phoneInput}
-                placeholder="merchant@example.com"
+                placeholder="member@example.com"
                 placeholderTextColor={Colors.textMuted}
                 value={email}
                 onChangeText={setEmail}
@@ -123,7 +123,7 @@ export const LoginScreen = () => {
           </View>
 
           <AnimatedPressable onPress={handleLogin} style={styles.loginBtn}>
-            <LinearGradient colors={['#1B5E4B', '#0D4A35']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.loginGradient}>
+            <LinearGradient colors={['#002853', '#133E72']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.loginGradient}>
               {loading
                 ? <Text style={styles.loginText}>Signing in...</Text>
                 : <>
@@ -146,7 +146,7 @@ export const LoginScreen = () => {
           </View>
 
           <View style={styles.registerRow}>
-            <Text style={styles.registerText}>New merchant? </Text>
+            <Text style={styles.registerText}>New to CUB? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
               <Text style={styles.registerLink}>Create free account →</Text>
             </TouchableOpacity>
@@ -158,7 +158,7 @@ export const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F5F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
 
   hero: { paddingTop: vs(60), paddingBottom: vs(48), paddingHorizontal: rs(24), overflow: 'hidden' },
   heroOrb: { position: 'absolute', width: rs(300), height: rs(300), borderRadius: rs(150), backgroundColor: 'rgba(255,255,255,0.05)', top: rs(-80), right: rs(-60) },
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
 
   scroll: { paddingHorizontal: rs(16), paddingBottom: vs(40) },
   card: { backgroundColor: '#fff', borderRadius: rs(24), padding: rs(24), marginTop: vs(-32), shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12, shadowRadius: 24, elevation: 12, gap: rs(4) },
-  cardTitle: { fontSize: ms(22), fontWeight: '800', color: '#0D3D2A', marginBottom: rs(2) },
+  cardTitle: { fontSize: ms(22), fontWeight: '800', color: '#181C1E', marginBottom: rs(2) },
   cardSub: { fontSize: ms(14), color: Colors.textSecondary, marginBottom: rs(8) },
 
   form: { gap: rs(4), marginTop: rs(4) },

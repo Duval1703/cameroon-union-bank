@@ -1,4 +1,4 @@
-package com.mboatrust.ai
+package com.cameroonunionbank.app
 
 import android.app.Application
 import android.content.res.Configuration

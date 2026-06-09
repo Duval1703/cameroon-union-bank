@@ -10,7 +10,7 @@ import { rs, vs, ms } from '../../utils/responsive';
 
 const faqs = [
   { q: 'How does AI fraud detection work?',         a: 'Our AI analyzes the phone number, payment amount, and historical patterns from thousands of transactions to assign a real-time trust score.' },
-  { q: 'Does MboaTrust work without internet?',     a: 'Yes! All your records are stored locally. When you reconnect, the app syncs automatically. Verification requires internet.' },
+  { q: 'Does CUB work without internet?',           a: 'Yes. Your records are stored locally where supported. When you reconnect, the app syncs automatically. Verification requires internet.' },
   { q: 'How is my data protected?',                 a: 'All data is encrypted with 256-bit AES. We never sell your data. Your PIN is hashed and never stored in plain text.' },
   { q: 'Can I export my business records?',        a: 'Yes, go to Statistics > Financial Summary and tap the Share button to export a PDF or CSV report.' },
   { q: 'What payment networks are supported?',     a: 'MTN MoMo, Orange Money, Express Union, and cash transactions. More networks coming soon.' },

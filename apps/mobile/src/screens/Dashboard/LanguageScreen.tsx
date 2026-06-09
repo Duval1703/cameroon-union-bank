@@ -55,7 +55,7 @@ export const LanguageScreen = () => {
       </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.hint}>Choose your preferred language for MboaTrust AI</Text>
+        <Text style={styles.hint}>Choose your preferred language for Cameroon Union Bank</Text>
         <View style={styles.card}>
           {languages.map((l, i) => (
             <TouchableOpacity key={i} style={[styles.langRow, i < languages.length - 1 && styles.langDiv]} activeOpacity={0.8} onPress={() => selectLanguage(l.value)}>

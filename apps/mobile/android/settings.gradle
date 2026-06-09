@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'MboaTrust AI'
+rootProject.name = 'Cameroon Union Bank'
 
 dependencyResolutionManagement {
   versionCatalogs {

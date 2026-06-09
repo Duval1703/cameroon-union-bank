@@ -64,7 +64,7 @@ export const RegisterScreen = () => {
         street_address: streetAddress.trim(),
         city: city.trim() || 'Douala',
         region: region.trim() || 'Littoral',
-        occupation: 'Merchant',
+        occupation: 'CUB Member',
         employer_name: businessType,
         monthly_income_range: monthlyIncomeRange,
         income_source: incomeSource.trim(),
@@ -92,14 +92,14 @@ export const RegisterScreen = () => {
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#133E72']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={rs(20)} color="#fff" />
         </TouchableOpacity>
         <View style={styles.heroText}>
-          <Text style={styles.heroTitle}>Create Account</Text>
-          <Text style={styles.heroSub}>Join 10,000+ merchants using MboaTrust AI</Text>
+          <Text style={styles.heroTitle}>Create CUB Profile</Text>
+          <Text style={styles.heroSub}>Start your AI financial identity and credit access journey</Text>
         </View>
       </LinearGradient>
 
@@ -119,7 +119,7 @@ export const RegisterScreen = () => {
             <Text style={styles.fieldLabel}>EMAIL</Text>
             <View style={styles.inputRow}>
               <Ionicons name="mail-outline" size={rs(16)} color="#9CA3AF" style={{ marginRight: rs(8) }} />
-              <TextInput style={styles.input} placeholder="merchant@example.com" value={email} onChangeText={setEmail} placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="member@example.com" value={email} onChangeText={setEmail} placeholderTextColor="#9CA3AF" keyboardType="email-address" autoCapitalize="none" />
             </View>
           </View>
 
@@ -180,13 +180,13 @@ export const RegisterScreen = () => {
 
           {/* Business type */}
           <View style={styles.sectionDivider}>
-            <Text style={styles.sectionTitle}>Business Profile</Text>
+            <Text style={styles.sectionTitle}>Financial Profile</Text>
           </View>
 
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>BUSINESS TYPE</Text>
+            <Text style={styles.fieldLabel}>INCOME ACTIVITY</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-              {['Shop','Market','Restaurant','Service','Other'].map(t => (
+              {['Shop','Market','Restaurant','Salary','Service','Other'].map(t => (
                 <TouchableOpacity key={t} style={[styles.chip, businessType === t && styles.chipActive]} onPress={() => setBusinessType(t)} activeOpacity={0.8}>
                   <Text style={[styles.chipText, businessType === t && styles.chipTextActive]}>{t}</Text>
                 </TouchableOpacity>
@@ -195,10 +195,10 @@ export const RegisterScreen = () => {
           </View>
 
           <View style={styles.field}>
-            <Text style={styles.fieldLabel}>BUSINESS ADDRESS</Text>
+            <Text style={styles.fieldLabel}>ADDRESS</Text>
             <View style={styles.inputRow}>
               <Ionicons name="storefront-outline" size={rs(16)} color="#9CA3AF" style={{ marginRight: rs(8) }} />
-              <TextInput style={styles.input} placeholder="Market, quarter, or street" value={streetAddress} onChangeText={setStreetAddress} placeholderTextColor="#9CA3AF" />
+              <TextInput style={styles.input} placeholder="Quarter, market, or street" value={streetAddress} onChangeText={setStreetAddress} placeholderTextColor="#9CA3AF" />
             </View>
           </View>
 
@@ -289,8 +289,8 @@ export const RegisterScreen = () => {
           </View>
 
           <TouchableOpacity style={[styles.submitBtn, loading && { opacity: 0.75 }]} onPress={handleRegister} disabled={loading} activeOpacity={0.85}>
-            <LinearGradient colors={['#065F46','#059669']} style={styles.submitBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-              <Text style={styles.submitBtnText}>{loading ? 'Creating Account...' : 'Create Account & Continue KYC'}</Text>
+            <LinearGradient colors={['#002853','#133E72']} style={styles.submitBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+              <Text style={styles.submitBtnText}>{loading ? 'Creating Profile...' : 'Create Profile & Continue KYC'}</Text>
               {!loading && <Ionicons name="arrow-forward" size={rs(18)} color="#fff" />}
             </LinearGradient>
           </TouchableOpacity>
@@ -305,7 +305,7 @@ export const RegisterScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(28), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   backBtn: { width: rs(36), height: rs(36), borderRadius: rs(18), backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: rs(16) },
@@ -320,16 +320,16 @@ const styles = StyleSheet.create({
   flagChip: { flexDirection: 'row', alignItems: 'center', paddingRight: rs(10), marginRight: rs(4), borderRightWidth: 1, borderRightColor: '#E5E7EB' },
   flagText: { fontSize: FontSize.base, color: '#374151', fontWeight: FontWeight.medium },
   sectionDivider: { borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: rs(14), marginTop: rs(2) },
-  sectionTitle: { fontSize: FontSize.base, color: '#064E3B', fontWeight: FontWeight.bold },
+  sectionTitle: { fontSize: FontSize.base, color: '#002853', fontWeight: FontWeight.bold },
   chipRow: { gap: rs(8) },
   chip: { paddingHorizontal: rs(14), paddingVertical: rs(8), backgroundColor: '#F0F4F2', borderRadius: Radius.full, borderWidth: 1.5, borderColor: '#E5E7EB' },
   chipText: { fontSize: FontSize.sm, color: '#374151', fontWeight: FontWeight.medium },
-  chipActive: { backgroundColor: '#ECFDF5', borderColor: '#1B5E4B' },
-  chipTextActive: { color: '#1B5E4B', fontWeight: FontWeight.bold },
-  submitBtn: { borderRadius: Radius.full, overflow: 'hidden', shadowColor: '#059669', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 8, marginTop: rs(4) },
+  chipActive: { backgroundColor: '#DCE7F3', borderColor: '#002853' },
+  chipTextActive: { color: '#002853', fontWeight: FontWeight.bold },
+  submitBtn: { borderRadius: Radius.full, overflow: 'hidden', shadowColor: '#002853', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 8, marginTop: rs(4) },
   submitBtnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: rs(15), gap: rs(8) },
   submitBtnText: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: '#FFFFFF' },
   loginRow: { alignItems: 'center', paddingVertical: rs(4) },
   loginText: { fontSize: FontSize.base, color: '#6B7280' },
-  loginLink: { color: '#1B5E4B', fontWeight: FontWeight.bold },
+  loginLink: { color: '#002853', fontWeight: FontWeight.bold },
 });

@@ -174,6 +174,71 @@ class LoanRequest(BaseModel):
     description: Optional[str] = None
 
 
+class LoanOfferCreate(BaseModel):
+    title: str = Field(..., min_length=3, max_length=255)
+    min_amount: float = Field(..., gt=0)
+    max_amount: float = Field(..., gt=0)
+    interest_rate: float = Field(..., ge=0)
+    duration_months: int = Field(..., gt=0)
+    risk_band: str = "balanced"
+    funding_speed: str = "24 hours"
+    requirements: List[str] = Field(default_factory=list)
+
+    @validator("max_amount")
+    def max_amount_must_cover_min(cls, value, values):
+        min_amount = values.get("min_amount")
+        if min_amount is not None and value < min_amount:
+            raise ValueError("max_amount must be greater than or equal to min_amount")
+        return value
+
+
+class LoanOfferResponse(BaseModel):
+    id: UUID
+    lender_id: UUID
+    title: str
+    min_amount: float
+    max_amount: float
+    interest_rate: float
+    duration_months: int
+    risk_band: str
+    funding_speed: str
+    requirements: List[str]
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LoanNegotiationCreate(BaseModel):
+    offer_amount: float = Field(..., gt=0)
+    interest_rate: float = Field(..., ge=0)
+    duration_months: int = Field(..., gt=0)
+    message: Optional[str] = None
+
+
+class LoanNegotiationResponse(BaseModel):
+    id: UUID
+    loan_id: UUID
+    actor_id: UUID
+    actor_role: str
+    offer_amount: float
+    interest_rate: float
+    duration_months: int
+    message: Optional[str]
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LoanFundingCreate(BaseModel):
+    approved_amount: float = Field(..., gt=0)
+    interest_rate: Optional[float] = Field(default=None, ge=0)
+    duration_months: Optional[int] = Field(default=None, gt=0)
+
+
 class LoanResponse(BaseModel):
     """Loan data response"""
     id: UUID
@@ -183,11 +248,74 @@ class LoanResponse(BaseModel):
     approved_amount: Optional[float]
     interest_rate: float
     duration_months: int
+    loan_purpose: Optional[str] = None
+    description: Optional[str] = None
     status: str
     requested_at: datetime
+    due_date: Optional[date] = None
+    total_repaid: Optional[float] = 0
+    remaining_balance: Optional[float] = None
+    risk_level: Optional[str] = None
+    approval_score: Optional[float] = None
     
     class Config:
         from_attributes = True
+
+
+class RepaymentResponse(BaseModel):
+    id: UUID
+    loan_id: UUID
+    amount: float
+    principal_amount: Optional[float]
+    interest_amount: Optional[float]
+    due_date: date
+    paid_date: Optional[datetime]
+    status: str
+    payment_method: Optional[str]
+    payment_reference: Optional[str]
+    days_overdue: int
+    late_fee: float
+
+    class Config:
+        from_attributes = True
+
+
+class RepaymentPaymentCreate(BaseModel):
+    payment_method: str = Field(..., pattern=r'^(MTN|ORANGE|cash|bank_transfer|mobile_money)$')
+    payment_reference: str = Field(..., min_length=3, max_length=100)
+
+
+class GuardianRequestCreate(BaseModel):
+    guardian_name: str = Field(..., min_length=2, max_length=255)
+    guardian_phone: str = Field(..., min_length=9, max_length=20)
+    guardian_email: Optional[EmailStr] = None
+    guardian_relationship: str = Field(..., min_length=2, max_length=50)
+
+
+class GuardianDependentResponse(BaseModel):
+    id: UUID
+    full_name: str
+    phone: str
+    guardian_relationship: Optional[str]
+    guardian_approved: bool
+    kyc_status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LenderAnalyticsResponse(BaseModel):
+    active_loans: int
+    completed_loans: int
+    defaulted_loans: int
+    total_lent: float
+    total_repaid: float
+    outstanding_balance: float
+    expected_interest: float
+    average_interest_rate: float
+    risk_alerts: List[Dict[str, Any]]
+    borrower_performance: List[Dict[str, Any]]
 
 
 # ============================================================================

@@ -1,33 +1,33 @@
 export const Colors = {
   // Brand
-  primary: '#1B5E4B',
-  primaryDark: '#0F3D2E',
-  primaryMid: '#246B56',
-  primaryLight: '#2D8A65',
-  primaryMuted: '#4DA880',
+  primary: '#002853',
+  primaryDark: '#00172F',
+  primaryMid: '#133E72',
+  primaryLight: '#1F5D9A',
+  primaryMuted: '#5A7FA8',
 
   // Backgrounds
-  background: '#EEF4F0',
-  backgroundAlt: '#F5FAF7',
+  background: '#F4F7FB',
+  backgroundAlt: '#FFFFFF',
   surface: '#FFFFFF',
-  surfaceAlt: '#F8FAF9',
+  surfaceAlt: '#EEF3F8',
 
   // Gold / Accent
-  gold: '#F5A623',
-  goldDark: '#D4891A',
-  goldLight: '#FFF3D6',
+  gold: '#F0D980',
+  goldDark: '#735C00',
+  goldLight: '#FFF7D1',
 
   // Text
-  textPrimary: '#0D1B10',
+  textPrimary: '#181C1E',
   textSecondary: '#4B5563',
   textMuted: '#9CA3AF',
   textOnPrimary: '#FFFFFF',
-  textOnGold: '#7A4800',
+  textOnGold: '#241A00',
 
   // Semantic
-  success: '#16A34A',
-  successLight: '#DCFCE7',
-  successDark: '#14532D',
+  success: '#004829',
+  successLight: '#DDFBEA',
+  successDark: '#002F19',
   warning: '#D97706',
   warningLight: '#FEF3C7',
   warningDark: '#92400E',

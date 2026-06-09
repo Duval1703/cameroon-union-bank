@@ -236,7 +236,7 @@ CREATE TABLE loans (
     remaining_balance DECIMAL(15,2),
     
     -- Risk Assessment
-    risk_level VARCHAR(20) CHECK (risk_level IN ('low', 'medium', 'high', 'very_high')),
+    risk_level VARCHAR(20) CHECK (risk_level IN ('low', 'balanced', 'watch', 'high', 'medium', 'very_high')),
     approval_score DECIMAL(5,2),
     
     -- Timestamps
@@ -245,7 +245,7 @@ CREATE TABLE loans (
     
     -- Constraints
     CONSTRAINT different_parties CHECK (borrower_id != lender_id),
-    CONSTRAINT valid_approved_amount CHECK (approved_amount IS NULL OR approved_amount <= requested_amount)
+    CONSTRAINT valid_approved_amount CHECK (approved_amount IS NULL OR approved_amount > 0)
 );
 
 -- Indexes for loans
@@ -254,6 +254,48 @@ CREATE INDEX idx_loans_lender_id ON loans(lender_id);
 CREATE INDEX idx_loans_status ON loans(status);
 CREATE INDEX idx_loans_created_at ON loans(created_at DESC);
 CREATE INDEX idx_loans_due_date ON loans(due_date);
+
+-- ============================================================================
+-- LOAN OFFERS - Public lender marketplace offers
+-- ============================================================================
+CREATE TABLE loan_offers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    lender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    min_amount DECIMAL(15,2) NOT NULL CHECK (min_amount > 0),
+    max_amount DECIMAL(15,2) NOT NULL CHECK (max_amount >= min_amount),
+    interest_rate DECIMAL(5,2) NOT NULL CHECK (interest_rate >= 0),
+    duration_months INTEGER NOT NULL CHECK (duration_months > 0),
+    risk_band VARCHAR(30) DEFAULT 'balanced',
+    funding_speed VARCHAR(30) DEFAULT '24 hours',
+    requirements JSONB DEFAULT '[]'::jsonb,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'paused', 'closed')),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_loan_offers_lender_id ON loan_offers(lender_id);
+CREATE INDEX idx_loan_offers_status ON loan_offers(status);
+CREATE INDEX idx_loan_offers_amount_range ON loan_offers(min_amount, max_amount);
+
+-- ============================================================================
+-- LOAN NEGOTIATIONS - Borrower/lender counter-offer history
+-- ============================================================================
+CREATE TABLE loan_negotiations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    loan_id UUID NOT NULL REFERENCES loans(id) ON DELETE CASCADE,
+    actor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_role VARCHAR(20) NOT NULL CHECK (actor_role IN ('borrower', 'lender')),
+    offer_amount DECIMAL(15,2) NOT NULL CHECK (offer_amount > 0),
+    interest_rate DECIMAL(5,2) NOT NULL CHECK (interest_rate >= 0),
+    duration_months INTEGER NOT NULL CHECK (duration_months > 0),
+    message TEXT,
+    status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'accepted', 'rejected', 'expired')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_loan_negotiations_loan_id ON loan_negotiations(loan_id);
+CREATE INDEX idx_loan_negotiations_actor_id ON loan_negotiations(actor_id);
 
 -- ============================================================================
 -- REPAYMENTS - Loan repayment records
@@ -275,7 +317,7 @@ CREATE TABLE repayments (
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'partial', 'overdue', 'missed', 'waived')),
     
     -- Payment Method
-    payment_method VARCHAR(20) CHECK (payment_method IN ('MTN', 'ORANGE', 'BANK_TRANSFER', 'CASH')),
+    payment_method VARCHAR(20) CHECK (payment_method IN ('MTN', 'ORANGE', 'cash', 'bank_transfer', 'mobile_money')),
     payment_reference VARCHAR(100),
     
     -- Late Payment

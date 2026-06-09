@@ -36,7 +36,7 @@ export const ResultConfirmedScreen = () => {
     { label: 'Receipt metadata stored', ok: true },
     { label: 'Supplier captured',  ok: !!receipt.supplier },
     { label: 'Amount available',   ok: !!receipt.amount },
-    { label: 'Ready for Trust Score', ok: true },
+    { label: 'Ready for CUB Score', ok: true },
   ];
 
   return (

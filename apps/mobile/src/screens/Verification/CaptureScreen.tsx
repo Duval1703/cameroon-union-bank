@@ -213,7 +213,7 @@ export const CaptureScreen = () => {
         </TouchableOpacity>
 
         <Text style={styles.disclaimer}>
-          <Ionicons name="lock-closed-outline" size={rs(11)} color="#6B7280" /> Receipt data is stored privately and used for your Trust Score
+          <Ionicons name="lock-closed-outline" size={rs(11)} color="#6B7280" /> Document data is stored privately and used for your CUB Score
         </Text>
       </Animated.View>
     </View>

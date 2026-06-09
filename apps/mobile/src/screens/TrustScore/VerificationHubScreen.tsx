@@ -34,7 +34,7 @@ export const VerificationHubScreen = () => {
         </View>
         <View style={styles.trustBadge}>
           <Ionicons name="checkmark-circle" size={rs(14)} color="#4ADE80" />
-          <Text style={styles.trustBadgeText}>Authentic purchase receipts strengthen your Trust Score</Text>
+          <Text style={styles.trustBadgeText}>Verified identity and financial documents strengthen your CUB Score</Text>
         </View>
       </LinearGradient>
 

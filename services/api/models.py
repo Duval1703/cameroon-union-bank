@@ -104,6 +104,7 @@ class User(Base):
     stock_items = relationship("StockRecord", back_populates="user")
     inventory_tables = relationship("InventoryTable", back_populates="user")
     receipt_verifications = relationship("ReceiptVerification", back_populates="user")
+    loan_offers = relationship("LoanOffer", back_populates="lender")
     loans_as_borrower = relationship("Loan", foreign_keys="Loan.borrower_id", back_populates="borrower")
     loans_as_lender = relationship("Loan", foreign_keys="Loan.lender_id", back_populates="lender")
     notifications = relationship("Notification", back_populates="user")
@@ -358,6 +359,44 @@ class Loan(Base):
     borrower = relationship("User", foreign_keys=[borrower_id], back_populates="loans_as_borrower")
     lender = relationship("User", foreign_keys=[lender_id], back_populates="loans_as_lender")
     repayments = relationship("Repayment", back_populates="loan")
+    negotiations = relationship("LoanNegotiation", back_populates="loan")
+
+
+class LoanOffer(Base):
+    __tablename__ = "loan_offers"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    lender_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    title = Column(String(255), nullable=False)
+    min_amount = Column(DECIMAL(15, 2), nullable=False)
+    max_amount = Column(DECIMAL(15, 2), nullable=False)
+    interest_rate = Column(DECIMAL(5, 2), nullable=False)
+    duration_months = Column(Integer, nullable=False)
+    risk_band = Column(String(30), default='balanced')
+    funding_speed = Column(String(30), default='24 hours')
+    requirements = Column(JSONB, default=list)
+    status = Column(String(20), default='active')
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    lender = relationship("User", back_populates="loan_offers")
+
+
+class LoanNegotiation(Base):
+    __tablename__ = "loan_negotiations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    loan_id = Column(UUID(as_uuid=True), ForeignKey('loans.id'), nullable=False)
+    actor_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+    actor_role = Column(String(20), nullable=False)
+    offer_amount = Column(DECIMAL(15, 2), nullable=False)
+    interest_rate = Column(DECIMAL(5, 2), nullable=False)
+    duration_months = Column(Integer, nullable=False)
+    message = Column(Text)
+    status = Column(String(20), default='open')
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    loan = relationship("Loan", back_populates="negotiations")
 
 
 class Repayment(Base):

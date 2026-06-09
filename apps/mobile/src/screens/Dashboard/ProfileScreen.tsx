@@ -31,13 +31,13 @@ export const ProfileScreen = () => {
     return () => { active = false; };
   }, []));
 
-  const fullName = user?.full_name || 'MboaTrust Merchant';
+  const fullName = user?.full_name || 'CUB Member';
   const initials = fullName.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase();
 
   const handleSignOut = () => {
     Alert.alert(
       'Sign out',
-      'Do you want to sign out of MboaTrust AI?',
+      'Do you want to sign out of Cameroon Union Bank?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -91,10 +91,10 @@ export const ProfileScreen = () => {
               </TouchableOpacity>
             </View>
             <Text style={styles.profileName}>{fullName}</Text>
-            <Text style={styles.profileRole}>{user?.occupation || 'Merchant'} - {user?.city || 'Cameroon'}</Text>
+            <Text style={styles.profileRole}>{user?.occupation || 'CUB Member'} - {user?.city || 'Cameroon'}</Text>
             <View style={styles.profileChip}>
               <Ionicons name="star" size={rs(12)} color="#F5A623" />
-              <Text style={styles.profileChipText}>Trust Score: {score || user?.trust_score || 0} / 100</Text>
+              <Text style={styles.profileChipText}>CUB Score: {score || user?.trust_score || 0} / 100</Text>
             </View>
           </View>
 
@@ -139,7 +139,7 @@ export const ProfileScreen = () => {
           ))}
         </View>
 
-        <Text style={styles.version}>MboaTrust AI - v1.0.0 - Built in Cameroon</Text>
+        <Text style={styles.version}>Cameroon Union Bank - v1.0.0 - Built in Cameroon</Text>
       </ScrollView>
     </View>
   );

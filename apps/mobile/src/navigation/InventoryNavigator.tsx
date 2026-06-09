@@ -6,6 +6,6 @@ const Stack = createStackNavigator();
 
 export const InventoryNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="InventoryHub" component={InventoryHubScreen} />
+    <Stack.Screen name="RepaymentHub" component={InventoryHubScreen} />
   </Stack.Navigator>
 );

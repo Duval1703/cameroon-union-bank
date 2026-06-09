@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
               <View style={styles.logoIcon}>
                 <Ionicons name="checkmark" size={rs(14)} color={Colors.textOnPrimary} />
               </View>
-              <Text style={[styles.logoText, { color: textColor }]}>MboaTrust AI</Text>
+              <Text style={[styles.logoText, { color: textColor }]}>CUB</Text>
             </View>
           )}
         </View>

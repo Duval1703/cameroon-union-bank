@@ -58,7 +58,7 @@ export const SplashScreen = () => {
   }, []);
 
   return (
-    <LinearGradient colors={['#061E14', '#0A2B1E', '#0D4A35', '#1B5E4B']} locations={[0, 0.3, 0.65, 1]} style={styles.screen}>
+    <LinearGradient colors={['#00172F', '#002853', '#133E72']} locations={[0, 0.55, 1]} style={styles.screen}>
       <StatusBar style="light" />
 
       {/* Decorative orbs */}
@@ -80,24 +80,24 @@ export const SplashScreen = () => {
 
       {/* Brand name */}
       <Animated.View style={{ alignItems: 'center', opacity: textOpacity, transform: [{ translateY: textY }] }}>
-        <Text style={styles.brand}>MboaTrust</Text>
-        <Text style={styles.brandAi}><Text style={styles.brandAiAccent}>AI</Text></Text>
+        <Text style={styles.brand}>CUB</Text>
+        <Text style={styles.brandAi}>CAMEROON UNION BANK</Text>
       </Animated.View>
 
       {/* Tagline */}
       <Animated.Text style={[styles.tagline, { opacity: tagOpacity }]}>
-        Your Business. Your Trust. Your Future.
+        Your Identity. Your Credit. Your Future.
       </Animated.Text>
 
       {/* Offline badge */}
       <Animated.View style={[styles.badge, { opacity: badgeOpacity, transform: [{ translateY: badgeY }] }]}>
         <View style={styles.badgeDot} />
         <Ionicons name="wifi" size={rs(12)} color="#F5A623" />
-        <Text style={styles.badgeText}>SYNCED OFFLINE · 1,200+ MERCHANTS</Text>
+        <Text style={styles.badgeText}>AI FINANCIAL IDENTITY · P2P LENDING</Text>
       </Animated.View>
 
       {/* Footer */}
-      <Text style={styles.footer}>Powered by Claude AI · Secured End-to-End</Text>
+      <Text style={styles.footer}>Secured End-to-End · Built for Cameroon</Text>
 
       {/* Bottom bar */}
       <View style={styles.bottomBar}>
@@ -110,24 +110,24 @@ export const SplashScreen = () => {
 const styles = StyleSheet.create({
   screen: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: rs(18) },
 
-  orb1: { position: 'absolute', width: rs(320), height: rs(320), borderRadius: rs(160), backgroundColor: 'rgba(45,138,101,0.18)', top: SCREEN_H * 0.05, left: rs(-120) },
-  orb2: { position: 'absolute', width: rs(260), height: rs(260), borderRadius: rs(130), backgroundColor: 'rgba(245,166,35,0.08)', bottom: SCREEN_H * 0.1, right: rs(-80) },
+  orb1: { position: 'absolute', width: rs(320), height: rs(320), borderRadius: rs(160), backgroundColor: 'rgba(240,217,128,0.12)', top: SCREEN_H * 0.05, left: rs(-120) },
+  orb2: { position: 'absolute', width: rs(260), height: rs(260), borderRadius: rs(130), backgroundColor: 'rgba(255,255,255,0.07)', bottom: SCREEN_H * 0.1, right: rs(-80) },
   orb3: { position: 'absolute', width: rs(180), height: rs(180), borderRadius: rs(90), backgroundColor: 'rgba(255,255,255,0.04)', top: SCREEN_H * 0.55, left: rs(20) },
 
-  ringGlow: { position: 'absolute', width: rs(220), height: rs(220), borderRadius: rs(110), borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(45,138,101,0.12)' },
+  ringGlow: { position: 'absolute', width: rs(220), height: rs(220), borderRadius: rs(110), borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(240,217,128,0.10)' },
 
   logoWrap: { marginBottom: rs(4) },
   logoGlass: { width: rs(100), height: rs(100), borderRadius: rs(28), alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.22)' },
   logoInner: { alignItems: 'center', justifyContent: 'center' },
 
-  brand: { fontSize: ms(38), fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
-  brandAi: { fontSize: ms(15), fontWeight: '600', color: 'rgba(255,255,255,0.5)', letterSpacing: 6, marginTop: rs(-4) },
-  brandAiAccent: { color: '#F5A623' },
+  brand: { fontSize: ms(46), fontWeight: '800', color: '#FFFFFF', letterSpacing: 0 },
+  brandAi: { fontSize: ms(11), fontWeight: '700', color: '#F0D980', letterSpacing: 2.2, marginTop: rs(-2) },
+  brandAiAccent: { color: '#F0D980' },
 
   tagline: { fontSize: ms(14), color: 'rgba(255,255,255,0.6)', letterSpacing: 0.3, textAlign: 'center', paddingHorizontal: rs(32) },
 
   badge: { flexDirection: 'row', alignItems: 'center', gap: rs(6), backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: rs(16), paddingVertical: rs(9), borderRadius: rs(24), borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', marginTop: rs(8) },
-  badgeDot: { width: rs(6), height: rs(6), borderRadius: rs(3), backgroundColor: '#F5A623' },
+  badgeDot: { width: rs(6), height: rs(6), borderRadius: rs(3), backgroundColor: '#F0D980' },
   badgeText: { fontSize: ms(10), fontWeight: '600', color: 'rgba(255,255,255,0.75)', letterSpacing: 0.8 },
 
   footer: { position: 'absolute', bottom: vs(48), fontSize: ms(10), color: 'rgba(255,255,255,0.3)', letterSpacing: 0.5 },

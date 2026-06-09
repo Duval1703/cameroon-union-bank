@@ -81,7 +81,7 @@ export const TrustScoreDetailScreen = () => {
             <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
               <Ionicons name="arrow-back" size={rs(20)} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Trust Score</Text>
+            <Text style={styles.headerTitle}>CUB Score</Text>
             <TouchableOpacity style={styles.infoBtn}>
               <Ionicons name="information-circle-outline" size={rs(20)} color="rgba(255,255,255,0.7)" />
             </TouchableOpacity>

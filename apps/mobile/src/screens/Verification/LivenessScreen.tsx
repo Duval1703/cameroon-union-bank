@@ -143,7 +143,7 @@ export const LivenessScreen = () => {
           await saveUserData(currentUser.data);
         }
 
-        Alert.alert('Liveness Verified', 'Your merchant identity check is complete.', [
+        Alert.alert('Liveness Verified', 'Your CUB identity check is complete.', [
           { text: 'OK', onPress: () => navigation.getParent()?.replace('Main') },
         ]);
       } else {
@@ -252,7 +252,7 @@ export const LivenessScreen = () => {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>Camera access is needed for merchant liveness verification.</Text>
+        <Text style={styles.message}>Camera access is needed for CUB liveness verification.</Text>
         <TouchableOpacity style={styles.ctaButton} onPress={requestPermission}>
           <Text style={styles.ctaButtonText}>Grant Permission</Text>
         </TouchableOpacity>

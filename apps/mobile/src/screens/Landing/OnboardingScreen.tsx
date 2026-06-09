@@ -13,42 +13,42 @@ import { rs, vs, ms, SCREEN_W } from '../../utils/responsive';
 const slides = [
   {
     key: 'trust',
-    gradient: ['#0D4A35', '#1B5E4B', '#2D7A62'] as const,
-    icon: 'ribbon-outline' as const,
-    badge: '🇨🇲 Made for Cameroon',
-    title: 'Build Your\nTrust Score',
-    subtitle: 'Every sale, every receipt, every payment — AI tracks it all and builds your financial identity.',
-    chips: ['AI Verified', 'Loan Ready', 'Fraud-Proof'],
-    score: 85,
-    scoreLabel: 'Trust Score',
-    metric: '+12%',
-    metricLabel: 'Loan Eligibility',
+    gradient: ['#00172F', '#002853', '#133E72'] as const,
+    icon: 'finger-print-outline' as const,
+    badge: 'Made for Cameroon',
+    title: 'Create Your\nFinancial ID',
+    subtitle: 'CUB combines KYC, mobile money history, and AI scoring into one trusted borrower profile.',
+    chips: ['KYC Ready', 'AI Scored', 'Mobile Money'],
+    score: 74,
+    scoreLabel: 'CUB Score',
+    metric: '740',
+    metricLabel: 'Credit Profile',
   },
   {
     key: 'records',
-    gradient: ['#1D4ED8', '#2563EB', '#3B82F6'] as const,
-    icon: 'documents-outline' as const,
-    badge: '🔄 Offline First',
-    title: 'Track Every\nTransaction',
-    subtitle: 'Log sales, expenses, and stock offline. AI auto-categorizes. Syncs when you reconnect.',
-    chips: ['Auto-Sync', 'Smart Tags', 'Instant Export'],
-    score: 72,
-    scoreLabel: 'Records',
-    metric: '0',
-    metricLabel: 'Manual Entry',
+    gradient: ['#133E72', '#1F5D9A', '#002853'] as const,
+    icon: 'swap-horizontal-outline' as const,
+    badge: 'Community lending',
+    title: 'Access P2P\nLoans',
+    subtitle: 'Discover offers, negotiate terms, and keep every loan request transparent from application to funding.',
+    chips: ['Loan Offers', 'Negotiation', 'Fair Terms'],
+    score: 82,
+    scoreLabel: 'Match Rate',
+    metric: '3',
+    metricLabel: 'Open Offers',
   },
   {
     key: 'verify',
-    gradient: ['#5B21B6', '#7C3AED', '#8B5CF6'] as const,
-    icon: 'shield-checkmark-outline' as const,
-    badge: '⚡ 2-Second Verify',
-    title: 'Verify Any\nPayment Instantly',
-    subtitle: 'Snap a receipt. AI confirms authenticity in seconds. Never get scammed again.',
-    chips: ['99.8% Accurate', 'MTN & Orange', 'Fraud Alert'],
-    score: 99,
-    scoreLabel: 'Accuracy',
-    metric: '0s',
-    metricLabel: 'Disputes',
+    gradient: ['#735C00', '#A88710', '#002853'] as const,
+    icon: 'calendar-outline' as const,
+    badge: 'Repayment clarity',
+    title: 'Repay With\nConfidence',
+    subtitle: 'Track instalments, pay through MTN or Orange Money, and improve your CUB score after every repayment.',
+    chips: ['Schedules', 'MoMo Pay', 'Score Growth'],
+    score: 96,
+    scoreLabel: 'On Time',
+    metric: '+18',
+    metricLabel: 'Score Boost',
   },
 ];
 
@@ -148,14 +148,14 @@ export const OnboardingScreen = () => {
         <View style={styles.dots}>
           {slides.map((_, i) => {
             const width = dotAnim[i].interpolate({ inputRange: [0, 1], outputRange: [rs(7), rs(24)] });
-            const bg    = dotAnim[i].interpolate({ inputRange: [0, 1], outputRange: ['rgba(27,94,75,0.25)', '#1B5E4B'] });
+            const bg    = dotAnim[i].interpolate({ inputRange: [0, 1], outputRange: ['rgba(0,40,83,0.25)', '#002853'] });
             return <Animated.View key={i} style={[styles.dot, { width, backgroundColor: bg }]} />;
           })}
         </View>
 
         {/* CTA */}
         <AnimatedPressable onPress={next} style={styles.cta}>
-          <LinearGradient colors={['#1B5E4B', '#0D4A35']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.ctaGradient}>
+          <LinearGradient colors={['#002853', '#133E72']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.ctaGradient}>
             <Text style={styles.ctaText}>
               {current === slides.length - 1 ? 'Get Started' : 'Continue'}
             </Text>
@@ -164,7 +164,7 @@ export const OnboardingScreen = () => {
         </AnimatedPressable>
 
         <Text style={styles.disclaimer}>
-          Trusted by 1,200+ Cameroonian merchants · Bank-grade security
+          Cameroon Union Bank · Bank-grade security · Built for inclusive credit
         </Text>
       </View>
     </View>
@@ -172,7 +172,7 @@ export const OnboardingScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F5F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   skip: { position: 'absolute', top: vs(52), right: rs(20), zIndex: 10, backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: rs(14), paddingVertical: rs(6), borderRadius: rs(20) },
   skipText: { fontSize: ms(13), color: '#fff', fontWeight: '600' },
 
@@ -192,11 +192,11 @@ const styles = StyleSheet.create({
   metricLabel: { fontSize: ms(11), color: 'rgba(255,255,255,0.75)', fontWeight: '600', textAlign: 'center' },
 
   slideContent: { paddingHorizontal: rs(24), paddingTop: vs(24), gap: rs(12) },
-  slideTitle: { fontSize: ms(28), fontWeight: '800', color: '#0D3D2A', lineHeight: ms(34), letterSpacing: -0.3 },
-  slideSubtitle: { fontSize: ms(15), color: '#4B7A66', lineHeight: ms(22) },
+  slideTitle: { fontSize: ms(28), fontWeight: '800', color: '#181C1E', lineHeight: ms(34), letterSpacing: 0 },
+  slideSubtitle: { fontSize: ms(15), color: '#4B5563', lineHeight: ms(22) },
 
   chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: rs(8), marginTop: rs(4) },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: rs(5), backgroundColor: '#D1EAE0', paddingHorizontal: rs(10), paddingVertical: rs(6), borderRadius: rs(20) },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: rs(5), backgroundColor: '#DCE7F3', paddingHorizontal: rs(10), paddingVertical: rs(6), borderRadius: rs(20) },
   chipText: { fontSize: ms(12), color: Colors.primary, fontWeight: '600' },
 
   bottom: { paddingHorizontal: rs(24), paddingBottom: vs(40), gap: rs(16) },
@@ -207,5 +207,5 @@ const styles = StyleSheet.create({
   ctaGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: rs(10), paddingVertical: rs(17) },
   ctaText: { fontSize: ms(17), fontWeight: '700', color: '#fff', letterSpacing: 0.3 },
 
-  disclaimer: { fontSize: ms(12), color: '#6B9E8A', textAlign: 'center' },
+  disclaimer: { fontSize: ms(12), color: '#5A7FA8', textAlign: 'center' },
 });

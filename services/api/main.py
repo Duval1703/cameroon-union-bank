@@ -6,6 +6,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, File, UploadFile, F
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, date
 from typing import Any, Dict, List, Optional
@@ -24,13 +25,18 @@ from database import engine, get_db, Base
 from models import (
     User, UserFinancialData, Transaction, Loan, Notification,
     SaleRecord, ExpenseRecord, StockRecord, ReceiptVerification,
-    TrustScoreHistory, UserPreference, InventoryTable
+    TrustScoreHistory, UserPreference, InventoryTable, Repayment,
+    LoanOffer, LoanNegotiation
 )
 from file_upload import save_upload_file, validate_image_file
 from schemas import (
     UserRegistration, UserLogin, UserResponse, Token, MessageResponse,
     LivenessVerification, SMSDataSubmission, TransactionCreate,
     LoanRequest, LoanResponse, NotificationResponse, Base64ImageUpload,
+    LoanOfferCreate, LoanOfferResponse, LoanNegotiationCreate,
+    LoanNegotiationResponse, LoanFundingCreate, RepaymentResponse,
+    RepaymentPaymentCreate, GuardianRequestCreate, GuardianDependentResponse,
+    LenderAnalyticsResponse,
     SaleRecordCreate, SaleRecordResponse, ExpenseRecordCreate, ExpenseRecordResponse,
     StockRecordCreate, StockRecordResponse, RecordsSummaryResponse,
     ReceiptManualVerificationCreate, ReceiptVerificationCreate, ReceiptVerificationResponse, TrustScoreResponse,
@@ -554,10 +560,115 @@ async def generate_credit_score(
 # LOAN ENDPOINTS
 # ============================================================================
 
+
+def _add_months(start_date: date, months: int) -> date:
+    month = start_date.month - 1 + months
+    year = start_date.year + month // 12
+    month = month % 12 + 1
+    day = min(start_date.day, [31, 29 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])
+    return date(year, month, day)
+
+
+def _cub_score_percent(user: User) -> int:
+    raw_score = user.credit_score or user.trust_score or 500
+    score = round(raw_score / 10) if raw_score > 100 else round(raw_score)
+    return max(0, min(100, score))
+
+
+def _risk_level_for_user(user: User) -> str:
+    score = _cub_score_percent(user)
+    if score >= 80:
+        return "low"
+    if score >= 62:
+        return "balanced"
+    if score >= 45:
+        return "watch"
+    return "high"
+
+
+def _generate_repayment_schedule(db: Session, loan: Loan) -> None:
+    db.query(Repayment).filter(Repayment.loan_id == loan.id).delete()
+    approved_amount = float(loan.approved_amount or loan.requested_amount)
+    interest_rate = float(loan.interest_rate or 0)
+    duration_months = max(1, int(loan.duration_months or 1))
+    total_interest = approved_amount * (interest_rate / 100)
+    total_due = approved_amount + total_interest
+    monthly_total = round(total_due / duration_months, 2)
+    monthly_principal = round(approved_amount / duration_months, 2)
+    monthly_interest = round(total_interest / duration_months, 2)
+
+    for index in range(duration_months):
+        amount = monthly_total
+        principal = monthly_principal
+        interest = monthly_interest
+        if index == duration_months - 1:
+            amount = round(total_due - (monthly_total * (duration_months - 1)), 2)
+            principal = round(approved_amount - (monthly_principal * (duration_months - 1)), 2)
+            interest = round(total_interest - (monthly_interest * (duration_months - 1)), 2)
+
+        db.add(Repayment(
+            loan_id=loan.id,
+            amount=amount,
+            principal_amount=principal,
+            interest_amount=interest,
+            due_date=_add_months(date.today(), index + 1),
+            status='pending',
+        ))
+
+    loan.due_date = _add_months(date.today(), duration_months)
+    loan.remaining_balance = total_due
+
+
+@app.post("/api/loans/offers", response_model=LoanOfferResponse, status_code=status.HTTP_201_CREATED)
+async def create_loan_offer(
+    offer_data: LoanOfferCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Create a lender marketplace offer."""
+    offer = LoanOffer(
+        lender_id=current_user.id,
+        title=offer_data.title,
+        min_amount=offer_data.min_amount,
+        max_amount=offer_data.max_amount,
+        interest_rate=offer_data.interest_rate,
+        duration_months=offer_data.duration_months,
+        risk_band=offer_data.risk_band,
+        funding_speed=offer_data.funding_speed,
+        requirements=offer_data.requirements,
+        status='active',
+    )
+    db.add(offer)
+    db.commit()
+    db.refresh(offer)
+    return LoanOfferResponse.model_validate(offer)
+
+
+@app.get("/api/loans/marketplace", response_model=List[LoanOfferResponse])
+async def get_loan_marketplace(
+    amount: Optional[float] = None,
+    duration_months: Optional[int] = None,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get active lender offers matched to the borrower's requested amount/duration."""
+    query = db.query(LoanOffer).filter(
+        LoanOffer.status == 'active',
+        LoanOffer.lender_id != current_user.id,
+    )
+    if amount is not None:
+        query = query.filter(LoanOffer.min_amount <= amount, LoanOffer.max_amount >= amount)
+    if duration_months is not None:
+        query = query.filter(LoanOffer.duration_months >= duration_months)
+
+    offers = query.order_by(LoanOffer.interest_rate.asc(), LoanOffer.created_at.desc()).limit(50).all()
+    return [LoanOfferResponse.model_validate(offer) for offer in offers]
+
+
 @app.post("/api/loans/request", response_model=LoanResponse, status_code=status.HTTP_201_CREATED)
 async def create_loan_request(
     loan_data: LoanRequest,
-    current_user: User = Depends(require_liveness_verified),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Create a new loan request"""
@@ -568,7 +679,10 @@ async def create_loan_request(
         duration_months=loan_data.duration_months,
         loan_purpose=loan_data.loan_purpose,
         description=loan_data.description,
-        status='requested'
+        status='requested',
+        remaining_balance=loan_data.requested_amount,
+        risk_level=_risk_level_for_user(current_user),
+        approval_score=_cub_score_percent(current_user),
     )
     
     db.add(new_loan)
@@ -589,6 +703,257 @@ async def get_my_loans(
     ).all()
     
     return [LoanResponse.model_validate(loan) for loan in loans]
+
+
+@app.get("/api/loans/{loan_id}/negotiations", response_model=List[LoanNegotiationResponse])
+async def get_loan_negotiations(
+    loan_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    loan = db.query(Loan).filter(Loan.id == loan_id).first()
+    if not loan or current_user.id not in [loan.borrower_id, loan.lender_id]:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Loan not found")
+
+    negotiations = db.query(LoanNegotiation).filter(
+        LoanNegotiation.loan_id == loan_id
+    ).order_by(LoanNegotiation.created_at.asc()).all()
+    return [LoanNegotiationResponse.model_validate(item) for item in negotiations]
+
+
+@app.post("/api/loans/{loan_id}/counter-offer", response_model=LoanNegotiationResponse, status_code=status.HTTP_201_CREATED)
+async def create_loan_counter_offer(
+    loan_id: uuid.UUID,
+    negotiation_data: LoanNegotiationCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    loan = db.query(Loan).filter(Loan.id == loan_id).first()
+    if not loan:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Loan not found")
+
+    is_party = current_user.id in [loan.borrower_id, loan.lender_id]
+    if not is_party and loan.status not in ['requested', 'negotiating']:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Loan is not open for negotiation")
+
+    actor_role = 'borrower' if current_user.id == loan.borrower_id else 'lender'
+    if actor_role == 'lender' and loan.lender_id is None:
+        loan.lender_id = current_user.id
+
+    negotiation = LoanNegotiation(
+        loan_id=loan.id,
+        actor_id=current_user.id,
+        actor_role=actor_role,
+        offer_amount=negotiation_data.offer_amount,
+        interest_rate=negotiation_data.interest_rate,
+        duration_months=negotiation_data.duration_months,
+        message=negotiation_data.message,
+        status='open',
+    )
+    loan.status = 'negotiating'
+    db.add(negotiation)
+    db.commit()
+    db.refresh(negotiation)
+    return LoanNegotiationResponse.model_validate(negotiation)
+
+
+@app.post("/api/loans/{loan_id}/fund", response_model=LoanResponse)
+async def fund_loan(
+    loan_id: uuid.UUID,
+    funding_data: LoanFundingCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    loan = db.query(Loan).filter(Loan.id == loan_id).first()
+    if not loan:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Loan not found")
+    if loan.borrower_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Borrowers cannot fund their own loans")
+    if loan.status not in ['requested', 'negotiating', 'approved']:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Loan cannot be funded from status {loan.status}")
+
+    loan.lender_id = current_user.id
+    loan.approved_amount = funding_data.approved_amount
+    if funding_data.interest_rate is not None:
+        loan.interest_rate = funding_data.interest_rate
+    if funding_data.duration_months is not None:
+        loan.duration_months = funding_data.duration_months
+    loan.status = 'active'
+    loan.approved_at = datetime.utcnow()
+    loan.disbursed_at = datetime.utcnow()
+    _generate_repayment_schedule(db, loan)
+
+    db.commit()
+    db.refresh(loan)
+    return LoanResponse.model_validate(loan)
+
+
+@app.get("/api/repayments/schedule", response_model=List[RepaymentResponse])
+async def get_repayment_schedule(
+    loan_id: Optional[uuid.UUID] = None,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    query = db.query(Repayment).join(Loan).filter(
+        or_(Loan.borrower_id == current_user.id, Loan.lender_id == current_user.id)
+    )
+    if loan_id:
+        query = query.filter(Repayment.loan_id == loan_id)
+
+    today = date.today()
+    repayments = query.order_by(Repayment.due_date.asc()).all()
+    for repayment in repayments:
+        if repayment.status == 'pending' and repayment.due_date < today:
+            repayment.status = 'overdue'
+            repayment.days_overdue = (today - repayment.due_date).days
+            repayment.late_fee = round(float(repayment.amount) * 0.02, 2)
+    db.commit()
+    return [RepaymentResponse.model_validate(item) for item in repayments]
+
+
+@app.post("/api/repayments/{repayment_id}/pay", response_model=RepaymentResponse)
+async def pay_repayment(
+    repayment_id: uuid.UUID,
+    payment_data: RepaymentPaymentCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    repayment = db.query(Repayment).join(Loan).filter(
+        Repayment.id == repayment_id,
+        Loan.borrower_id == current_user.id,
+    ).first()
+    if not repayment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Repayment not found")
+    if repayment.status == 'paid':
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Repayment is already paid")
+
+    repayment.status = 'paid'
+    repayment.paid_date = datetime.utcnow()
+    repayment.payment_method = payment_data.payment_method
+    repayment.payment_reference = payment_data.payment_reference
+    repayment.days_overdue = max(0, (date.today() - repayment.due_date).days)
+
+    loan = repayment.loan
+    loan.total_repaid = float(loan.total_repaid or 0) + float(repayment.amount)
+    loan.remaining_balance = max(0, float(loan.remaining_balance or 0) - float(repayment.amount))
+    if loan.remaining_balance == 0:
+        loan.status = 'completed'
+        loan.completed_at = datetime.utcnow()
+    elif loan.status == 'active':
+        loan.status = 'repaying'
+
+    db.commit()
+    db.refresh(repayment)
+    return RepaymentResponse.model_validate(repayment)
+
+
+@app.post("/api/guardians/request", response_model=UserResponse)
+async def request_guardian_link(
+    guardian_data: GuardianRequestCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    current_user.is_minor = True
+    current_user.guardian_name = guardian_data.guardian_name
+    current_user.guardian_phone = guardian_data.guardian_phone
+    current_user.guardian_email = guardian_data.guardian_email
+    current_user.guardian_relationship = guardian_data.guardian_relationship
+    current_user.guardian_approved = False
+    db.commit()
+    db.refresh(current_user)
+    return UserResponse.model_validate(current_user)
+
+
+@app.get("/api/guardians/dependents", response_model=List[GuardianDependentResponse])
+async def get_guardian_dependents(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    dependents = db.query(User).filter(
+        User.is_minor == True,
+        or_(User.guardian_id == current_user.id, User.guardian_email == current_user.email, User.guardian_phone == current_user.phone),
+    ).order_by(User.created_at.desc()).all()
+    return [GuardianDependentResponse.model_validate(user) for user in dependents]
+
+
+@app.post("/api/guardians/dependents/{dependent_id}/approve", response_model=GuardianDependentResponse)
+async def approve_guardian_dependent(
+    dependent_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    dependent = db.query(User).filter(
+        User.id == dependent_id,
+        User.is_minor == True,
+        or_(User.guardian_id == current_user.id, User.guardian_email == current_user.email, User.guardian_phone == current_user.phone),
+    ).first()
+    if not dependent:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dependent not found")
+
+    dependent.guardian_id = current_user.id
+    dependent.guardian_approved = True
+    dependent.guardian_approved_at = datetime.utcnow()
+    db.commit()
+    db.refresh(dependent)
+    return GuardianDependentResponse.model_validate(dependent)
+
+
+@app.get("/api/lender/analytics", response_model=LenderAnalyticsResponse)
+async def get_lender_analytics(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    loans = db.query(Loan).filter(Loan.lender_id == current_user.id).all()
+    active_loans = [loan for loan in loans if loan.status in ['active', 'repaying']]
+    completed_loans = [loan for loan in loans if loan.status == 'completed']
+    defaulted_loans = [loan for loan in loans if loan.status == 'defaulted']
+
+    total_lent = sum(float(loan.approved_amount or 0) for loan in loans)
+    total_repaid = sum(float(loan.total_repaid or 0) for loan in loans)
+    outstanding_balance = sum(float(loan.remaining_balance or 0) for loan in active_loans)
+    expected_interest = sum(float(loan.approved_amount or 0) * (float(loan.interest_rate or 0) / 100) for loan in loans)
+    average_interest_rate = round(sum(float(loan.interest_rate or 0) for loan in loans) / len(loans), 2) if loans else 0
+
+    today = date.today()
+    risk_alerts = []
+    borrower_performance = []
+    for loan in loans:
+        overdue_count = db.query(Repayment).filter(
+            Repayment.loan_id == loan.id,
+            Repayment.status.in_(['pending', 'overdue']),
+            Repayment.due_date < today,
+        ).count()
+        if overdue_count:
+            risk_alerts.append({
+                "loan_id": str(loan.id),
+                "borrower": loan.borrower.full_name if loan.borrower else "Borrower",
+                "severity": "high" if overdue_count > 1 else "medium",
+                "message": f"{overdue_count} instalment(s) overdue",
+            })
+
+        paid_count = db.query(Repayment).filter(Repayment.loan_id == loan.id, Repayment.status == 'paid').count()
+        total_count = db.query(Repayment).filter(Repayment.loan_id == loan.id).count()
+        borrower_performance.append({
+            "loan_id": str(loan.id),
+            "borrower": loan.borrower.full_name if loan.borrower else "Borrower",
+            "status": loan.status,
+            "paid_instalments": paid_count,
+            "total_instalments": total_count,
+            "remaining_balance": float(loan.remaining_balance or 0),
+        })
+
+    return LenderAnalyticsResponse(
+        active_loans=len(active_loans),
+        completed_loans=len(completed_loans),
+        defaulted_loans=len(defaulted_loans),
+        total_lent=total_lent,
+        total_repaid=total_repaid,
+        outstanding_balance=outstanding_balance,
+        expected_interest=expected_interest,
+        average_interest_rate=average_interest_rate,
+        risk_alerts=risk_alerts,
+        borrower_performance=borrower_performance,
+    )
 
 
 # ============================================================================

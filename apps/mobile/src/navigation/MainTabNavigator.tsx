@@ -21,10 +21,10 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const tabs = [
   { name: 'Home' as const,    label: 'Home',    icon: 'home-outline',           iconActive: 'home' },
-  { name: 'Verify' as const,  label: 'Verify',  icon: 'shield-outline',         iconActive: 'shield-checkmark' },
-  { name: 'Records' as const, label: 'Records', icon: 'document-text-outline',  iconActive: 'document-text' },
-  { name: 'Inventory' as const,label: 'Inventory', icon: 'storefront-outline',   iconActive: 'storefront' },
-  { name: 'Insights' as const,label: 'Insights',icon: 'trending-up-outline',    iconActive: 'trending-up' },
+  { name: 'Verify' as const,  label: 'KYC',     icon: 'shield-outline',         iconActive: 'shield-checkmark' },
+  { name: 'Records' as const, label: 'Loans',   icon: 'swap-horizontal-outline', iconActive: 'swap-horizontal' },
+  { name: 'Inventory' as const,label: 'Repay',  icon: 'wallet-outline',         iconActive: 'wallet' },
+  { name: 'Insights' as const,label: 'Analytics',icon: 'trending-up-outline',   iconActive: 'trending-up' },
   { name: 'Profile' as const, label: 'Profile', icon: 'person-outline',         iconActive: 'person' },
 ];
 
@@ -64,7 +64,7 @@ const CustomTabBar = ({ state, navigation, insets }: any) => {
             <View key={route.key} style={styles.tabItem}>
               <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={styles.verifyBtnWrap}>
                 <LinearGradient
-                  colors={isFocused ? ['#065F46','#059669'] : ['#0D4A35','#1B5E4B']}
+                  colors={isFocused ? ['#002853','#1F5D9A'] : ['#00172F','#002853']}
                   style={styles.verifyBtn}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 >
@@ -88,7 +88,7 @@ const CustomTabBar = ({ state, navigation, insets }: any) => {
               <Ionicons
                 name={(isFocused ? tab.iconActive : tab.icon) as any}
                 size={rs(20)}
-                color={isFocused ? '#1B5E4B' : '#9CA3AF'}
+                color={isFocused ? '#002853' : '#9CA3AF'}
               />
               {isFocused && <View style={styles.activeIndicator} />}
             </View>
@@ -106,8 +106,6 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
     paddingTop: vs(8),
     paddingHorizontal: rs(8),
     shadowColor: '#000',
@@ -130,7 +128,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   iconWrapActive: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#DCE7F3',
   },
   activeIndicator: {
     position: 'absolute',
@@ -138,11 +136,11 @@ const styles = StyleSheet.create({
     width: rs(4),
     height: rs(4),
     borderRadius: rs(2),
-    backgroundColor: '#1B5E4B',
+    backgroundColor: '#002853',
   },
   verifyBtnWrap: {
     marginTop: vs(-16),
-    shadowColor: '#1B5E4B',
+    shadowColor: '#002853',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
@@ -163,7 +161,7 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
   tabLabelActive: {
-    color: '#1B5E4B',
+    color: '#002853',
     fontWeight: FontWeight.bold,
   },
 });

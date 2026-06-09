@@ -395,6 +395,117 @@ export type StockRecordInput = {
   purchase_cost: number;
 };
 
+export type LoanOfferInput = {
+  title: string;
+  min_amount: number;
+  max_amount: number;
+  interest_rate: number;
+  duration_months: number;
+  risk_band?: string;
+  funding_speed?: string;
+  requirements?: string[];
+};
+
+export type LoanRequestInput = {
+  requested_amount: number;
+  interest_rate: number;
+  duration_months: number;
+  loan_purpose?: string;
+  description?: string;
+};
+
+export type LoanNegotiationInput = {
+  offer_amount: number;
+  interest_rate: number;
+  duration_months: number;
+  message?: string;
+};
+
+export type LoanFundingInput = {
+  approved_amount: number;
+  interest_rate?: number;
+  duration_months?: number;
+};
+
+export type RepaymentPaymentInput = {
+  payment_method: 'MTN' | 'ORANGE' | 'cash' | 'bank_transfer' | 'mobile_money';
+  payment_reference: string;
+};
+
+export type GuardianRequestInput = {
+  guardian_name: string;
+  guardian_phone: string;
+  guardian_email?: string;
+  guardian_relationship: string;
+};
+
+export async function createLoanOffer(token: string, payload: LoanOfferInput): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest('/api/loans/offers', token, 'POST', payload);
+}
+
+export async function listLoanMarketplace(
+  token: string,
+  filters: { amount?: number; duration_months?: number } = {}
+): Promise<ApiResponse<any[]>> {
+  const params = new URLSearchParams();
+  if (filters.amount) params.append('amount', String(filters.amount));
+  if (filters.duration_months) params.append('duration_months', String(filters.duration_months));
+  const query = params.toString();
+  return authenticatedJsonRequest(`/api/loans/marketplace${query ? `?${query}` : ''}`, token);
+}
+
+export async function createLoanRequest(token: string, payload: LoanRequestInput): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest('/api/loans/request', token, 'POST', payload);
+}
+
+export async function listMyLoans(token: string): Promise<ApiResponse<any[]>> {
+  return authenticatedJsonRequest('/api/loans/my-loans', token);
+}
+
+export async function listLoanNegotiations(token: string, loanId: string): Promise<ApiResponse<any[]>> {
+  return authenticatedJsonRequest(`/api/loans/${loanId}/negotiations`, token);
+}
+
+export async function createLoanCounterOffer(
+  token: string,
+  loanId: string,
+  payload: LoanNegotiationInput
+): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest(`/api/loans/${loanId}/counter-offer`, token, 'POST', payload);
+}
+
+export async function fundLoan(token: string, loanId: string, payload: LoanFundingInput): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest(`/api/loans/${loanId}/fund`, token, 'POST', payload);
+}
+
+export async function listRepaymentSchedule(token: string, loanId?: string): Promise<ApiResponse<any[]>> {
+  return authenticatedJsonRequest(`/api/repayments/schedule${loanId ? `?loan_id=${loanId}` : ''}`, token);
+}
+
+export async function payRepayment(
+  token: string,
+  repaymentId: string,
+  payload: RepaymentPaymentInput
+): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest(`/api/repayments/${repaymentId}/pay`, token, 'POST', payload);
+}
+
+export async function requestGuardianLink(token: string, payload: GuardianRequestInput): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest('/api/guardians/request', token, 'POST', payload);
+}
+
+export async function listGuardianDependents(token: string): Promise<ApiResponse<any[]>> {
+  return authenticatedJsonRequest('/api/guardians/dependents', token);
+}
+
+export async function approveGuardianDependent(token: string, dependentId: string): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest(`/api/guardians/dependents/${dependentId}/approve`, token, 'POST');
+}
+
+export async function getLenderAnalytics(token: string): Promise<ApiResponse<any>> {
+  return authenticatedJsonRequest('/api/lender/analytics', token);
+}
+
 export async function getRecordsSummary(token: string): Promise<ApiResponse<any>> {
   return authenticatedJsonRequest('/api/records/summary', token);
 }
