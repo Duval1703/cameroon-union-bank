@@ -2,7 +2,7 @@
 CUB Backend API - Main Application
 FastAPI server for user registration, authentication, and KYC management
 """
-from fastapi import FastAPI, Depends, HTTPException, status, File, UploadFile, Form
+from fastapi import FastAPI, Depends, HTTPException, status, File, UploadFile, Form, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
@@ -107,6 +107,12 @@ async def root():
         "status": "running",
         "version": "1.0.0"
     }
+
+
+@app.head("/")
+async def root_readiness():
+    """Lightweight readiness response for Render's initial port probe."""
+    return Response(status_code=status.HTTP_200_OK)
 
 
 @app.get("/health")
