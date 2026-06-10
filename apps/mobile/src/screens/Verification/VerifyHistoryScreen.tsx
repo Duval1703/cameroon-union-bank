@@ -124,7 +124,7 @@ export const VerifyHistoryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(150), height: rs(150), borderRadius: rs(75), backgroundColor: 'rgba(255,255,255,0.04)' },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(18) },

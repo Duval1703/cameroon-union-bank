@@ -22,7 +22,7 @@ export const FinancialSummaryScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -57,7 +57,7 @@ export const FinancialSummaryScreen = () => {
         <View style={styles.marginCard}>
           <Text style={styles.marginTitle}>Profit Margin</Text>
           <View style={styles.marginBarTrack}>
-            <LinearGradient colors={['#0D4A35','#059669']} style={[styles.marginBarFill, { width: '61%' }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} />
+            <LinearGradient colors={['#002853','#133E72']} style={[styles.marginBarFill, { width: '61%' }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} />
           </View>
           <Text style={styles.marginPct}>61% margin this month</Text>
         </View>
@@ -67,7 +67,7 @@ export const FinancialSummaryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(10) },

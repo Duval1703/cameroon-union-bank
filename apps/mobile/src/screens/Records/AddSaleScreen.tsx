@@ -81,7 +81,7 @@ export const AddSaleScreen = () => {
 
       {/* Gradient header */}
       <LinearGradient
-        colors={['#065F46', '#059669', '#10B981']}
+        colors={['#002853', '#133E72', '#F0D980']}
         style={[styles.header, { paddingTop: insets.top + rs(10) }]}
       >
         <View style={styles.orb} />
@@ -124,7 +124,7 @@ export const AddSaleScreen = () => {
               activeOpacity={0.8}
             >
               {method === m.key && (
-                <LinearGradient colors={['#065F46','#059669']} style={[StyleSheet.absoluteFillObject, { borderRadius: Radius.lg }]} />
+                <LinearGradient colors={['#002853','#133E72']} style={[StyleSheet.absoluteFillObject, { borderRadius: Radius.lg }]} />
               )}
               <Ionicons name={m.icon as any} size={rs(16)} color={method === m.key ? '#fff' : '#6B7280'} />
               <Text style={[styles.methodLabel, method === m.key && styles.methodLabelActive]}>{m.label}</Text>
@@ -188,7 +188,7 @@ export const AddSaleScreen = () => {
             disabled={loading}
             activeOpacity={0.85}
           >
-            <LinearGradient colors={['#065F46','#059669','#10B981']} style={styles.saveBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+            <LinearGradient colors={['#002853','#133E72','#F0D980']} style={styles.saveBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
               <Ionicons name={loading ? 'hourglass-outline' : 'checkmark-circle-outline'} size={rs(20)} color="#fff" />
               <Text style={styles.saveBtnText}>{loading ? 'Saving Sale...' : 'Save Sale'}</Text>
             </LinearGradient>
@@ -200,7 +200,7 @@ export const AddSaleScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
 
   // Header
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   // Meta
   metaRow: { flexDirection: 'row', gap: rs(8), paddingHorizontal: rs(16), marginTop: rs(12) },
   metaChip: { flexDirection: 'row', alignItems: 'center', gap: rs(5), backgroundColor: '#ECFDF5', paddingHorizontal: rs(10), paddingVertical: rs(6), borderRadius: Radius.full },
-  metaText: { fontSize: FontSize.xs, color: '#065F46', fontWeight: FontWeight.semibold },
+  metaText: { fontSize: FontSize.xs, color: '#002853', fontWeight: FontWeight.semibold },
 
   // Note
   noteSection: { paddingHorizontal: rs(16), marginTop: rs(14) },

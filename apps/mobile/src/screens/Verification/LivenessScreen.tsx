@@ -267,7 +267,7 @@ export const LivenessScreen = () => {
       <StatusBar style="dark" />
       <View style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={rs(22)} color="#065F46" />
+          <Ionicons name="arrow-back" size={rs(22)} color="#002853" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Face Liveness Check</Text>
         <View style={{ width: rs(38) }} />
@@ -299,9 +299,9 @@ export const LivenessScreen = () => {
         <View style={styles.infoCard}>
           <View style={styles.infoIconBox}>
             {isVerifying && !isFinalizing ? (
-              <ActivityIndicator color="#065F46" />
+              <ActivityIndicator color="#002853" />
             ) : (
-              <Ionicons name="eye-outline" size={rs(24)} color="#065F46" />
+              <Ionicons name="eye-outline" size={rs(24)} color="#002853" />
             )}
           </View>
           <View style={styles.infoTexts}>
@@ -329,30 +329,30 @@ export const LivenessScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F0F4F2' },
+  container: { flex: 1, backgroundColor: '#F4F7FB' },
   message: { textAlign: 'center', padding: rs(20), fontSize: FontSize.base, color: '#374151', marginTop: vs(120) },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: rs(16), paddingBottom: rs(12), backgroundColor: '#F8FAFC' },
   backButton: { width: rs(38), height: rs(38), borderRadius: rs(19), alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: '#065F46' },
+  headerTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: '#002853' },
   content: { flex: 1, padding: rs(24), alignItems: 'center' },
   stepContainer: { width: '100%', marginBottom: rs(36) },
-  stepTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.extrabold, color: '#064E3B', marginBottom: rs(12) },
+  stepTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.extrabold, color: '#133E72', marginBottom: rs(12) },
   progressBar: { height: rs(6), width: '100%', backgroundColor: '#DDE5E1', borderRadius: Radius.full, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: '#10B981' },
+  progressFill: { height: '100%', backgroundColor: '#F0D980' },
   cameraFrameWrapper: { position: 'relative', alignItems: 'center', justifyContent: 'center', marginBottom: rs(24) },
   instructionBadge: { position: 'absolute', top: rs(-20), zIndex: 10, backgroundColor: '#FFFFFF', paddingHorizontal: rs(22), paddingVertical: rs(8), borderRadius: Radius.full, borderWidth: 1, borderColor: '#E5E7EB', elevation: 2 },
-  instructionText: { fontWeight: FontWeight.bold, color: '#064E3B' },
-  viewfinderWrapper: { width: rs(280), height: rs(280), borderRadius: rs(140), borderWidth: rs(4), borderColor: '#FFFFFF', elevation: 5, overflow: 'hidden', backgroundColor: '#0D4A35' },
+  instructionText: { fontWeight: FontWeight.bold, color: '#133E72' },
+  viewfinderWrapper: { width: rs(280), height: rs(280), borderRadius: rs(140), borderWidth: rs(4), borderColor: '#FFFFFF', elevation: 5, overflow: 'hidden', backgroundColor: '#002853' },
   camera: { width: '100%', height: '100%' },
   guideOverlay: { position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center' },
   hintText: { fontSize: FontSize.sm, color: '#6B7280', marginBottom: rs(28), textAlign: 'center' },
   infoCard: { flexDirection: 'row', backgroundColor: '#FFFFFF', padding: rs(16), borderRadius: Radius.xl, borderWidth: 1, borderColor: '#E5E7EB', width: '100%', marginBottom: rs(36) },
-  infoIconBox: { width: rs(48), height: rs(48), backgroundColor: '#ECFDF5', borderRadius: Radius.md, marginRight: rs(14), justifyContent: 'center', alignItems: 'center' },
+  infoIconBox: { width: rs(48), height: rs(48), backgroundColor: '#EEF3F8', borderRadius: Radius.md, marginRight: rs(14), justifyContent: 'center', alignItems: 'center' },
   infoTexts: { flex: 1 },
-  infoTitle: { fontWeight: FontWeight.bold, color: '#064E3B', marginBottom: rs(4) },
+  infoTitle: { fontWeight: FontWeight.bold, color: '#133E72', marginBottom: rs(4) },
   infoDesc: { fontSize: FontSize.xs, color: '#42474E', lineHeight: ms(12) * 1.5 },
   footer: { width: '100%', marginTop: 'auto' },
-  ctaButton: { backgroundColor: '#065F46', minHeight: rs(56), borderRadius: Radius.lg, justifyContent: 'center', alignItems: 'center', paddingHorizontal: rs(16), paddingVertical: rs(12) },
+  ctaButton: { backgroundColor: '#002853', minHeight: rs(56), borderRadius: Radius.lg, justifyContent: 'center', alignItems: 'center', paddingHorizontal: rs(16), paddingVertical: rs(12) },
   ctaButtonDisabled: { backgroundColor: '#9CA3AF' },
   ctaButtonText: { color: '#FFFFFF', fontSize: FontSize.base, fontWeight: FontWeight.bold, textAlign: 'center' },
 });

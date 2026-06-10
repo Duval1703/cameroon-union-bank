@@ -22,7 +22,7 @@ export const ForgotPasswordScreen = () => {
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={rs(20)} color="#fff" />
@@ -44,7 +44,7 @@ export const ForgotPasswordScreen = () => {
         </View>
 
         <TouchableOpacity style={[styles.btn, loading && { opacity: 0.75 }]} onPress={handleSend} disabled={loading} activeOpacity={0.85}>
-          <LinearGradient colors={['#065F46','#059669']} style={styles.btnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+          <LinearGradient colors={['#002853','#133E72']} style={styles.btnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
             <Ionicons name={loading ? 'hourglass-outline' : 'send-outline'} size={rs(18)} color="#fff" />
             <Text style={styles.btnText}>{loading ? 'Sending...' : 'Send Reset Code'}</Text>
           </LinearGradient>
@@ -59,7 +59,7 @@ export const ForgotPasswordScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(28), overflow: 'hidden', alignItems: 'center', gap: rs(10) },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   backBtn: { width: rs(36), height: rs(36), borderRadius: rs(18), backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', marginBottom: rs(8) },
@@ -77,5 +77,5 @@ const styles = StyleSheet.create({
   btnGrad: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: rs(15), gap: rs(8) },
   btnText: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: '#FFFFFF' },
   backLinkRow: { alignItems: 'center' },
-  backLinkText: { fontSize: FontSize.base, color: '#1B5E4B', fontWeight: FontWeight.bold },
+  backLinkText: { fontSize: FontSize.base, color: '#002853', fontWeight: FontWeight.bold },
 });

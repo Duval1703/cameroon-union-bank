@@ -1,5 +1,5 @@
 ﻿import React, { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Dimensions, Alert, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,7 +31,7 @@ const quickActions = [
   { icon: 'finger-print-outline',     label: 'Complete\nKYC',     color: '#002853', bg: '#DCE7F3', screen: 'Verify' },
   { icon: 'cash-outline',             label: 'Request\nLoan',     color: '#735C00', bg: '#FFF7D1', screen: 'Records' },
   { icon: 'wallet-outline',           label: 'Repay\nLoan',       color: '#004829', bg: '#DDFBEA', screen: 'Inventory' },
-  { icon: 'bar-chart-outline',        label: 'Portfolio',         color: '#1F5D9A', bg: '#EFF6FF', screen: 'Insights' },
+  { icon: 'cube-outline',             label: 'Add\nInventory',    color: '#1F5D9A', bg: '#EFF6FF', screen: 'Insights' },
 ];
 
 type DashboardUser = {
@@ -179,9 +179,30 @@ export const HomeScreen = () => {
       return;
     }
 
+    if (!response.consent_url) {
+      Alert.alert(
+        'Sync request created',
+        `${provider} received the request. Approve it from the provider notification, then refresh your transactions.`
+      );
+      return;
+    }
+
     Alert.alert(
-      'Approve in ntfy',
-      `${provider} sync request sent. Open the ntfy notification and tap Approve, then return here to refresh your collected transactions.`
+      'Approve Mobile Money access',
+      `CUB needs your consent before importing ${provider} transactions.`,
+      [
+        { text: 'Later', style: 'cancel' },
+        {
+          text: 'Open consent',
+          onPress: async () => {
+            try {
+              await Linking.openURL(response.consent_url!);
+            } catch {
+              Alert.alert('Cannot open consent page', response.consent_url);
+            }
+          },
+        },
+      ]
     );
   };
 
@@ -518,7 +539,7 @@ export const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
 
   // Hero
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(28), overflow: 'hidden' },

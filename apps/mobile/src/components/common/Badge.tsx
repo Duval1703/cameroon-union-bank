@@ -13,7 +13,7 @@ const variantConfig: Record<BadgeVariant, { bg: string; text: string }> = {
   danger:  { bg: Colors.dangerLight,  text: Colors.dangerDark },
   info:    { bg: Colors.infoLight,    text: Colors.info },
   gold:    { bg: Colors.goldLight,    text: Colors.goldDark },
-  primary: { bg: '#D1EAE0',           text: Colors.primary },
+  primary: { bg: '#DCE7F3',           text: Colors.primary },
   neutral: { bg: Colors.inputBg,      text: Colors.textSecondary },
 };
 

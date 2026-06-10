@@ -6,7 +6,7 @@ export const GradientSets = {
   primaryMid:  ['#002853', '#133E72', '#1F5D9A'] as const,
   gold:        ['#735C00', '#F0D980', '#FFF7D1'] as const,
   danger:      ['#B91C1C', '#DC2626', '#EF4444'] as const,
-  success:     ['#065F46', '#059669', '#10B981'] as const,
+  success:     ['#002853', '#133E72', '#F0D980'] as const,
   dark:        ['#00172F', '#002853', '#133E72'] as const,
   glass:       ['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.08)'] as const,
   surface:     ['#FFFFFF', '#F8FAFB'] as const,
@@ -23,7 +23,7 @@ export const ColoredShadow = {
 
 // Category color system
 export const CategoryColors = {
-  sale:    { icon: '#059669', bg: '#ECFDF5', gradient: ['#065F46', '#059669'] as const },
+  sale:    { icon: '#059669', bg: '#ECFDF5', gradient: ['#002853', '#133E72'] as const },
   expense: { icon: '#DC2626', bg: '#FEF2F2', gradient: ['#991B1B', '#DC2626'] as const },
   stock:   { icon: '#2563EB', bg: '#EFF6FF', gradient: ['#1D4ED8', '#2563EB'] as const },
   verify:  { icon: '#002853', bg: '#DCE7F3', gradient: ['#00172F', '#002853'] as const },

@@ -53,7 +53,7 @@ export const EditProfileScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -96,7 +96,7 @@ export const EditProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(16) },

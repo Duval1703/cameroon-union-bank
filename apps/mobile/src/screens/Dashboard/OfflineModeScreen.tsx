@@ -23,7 +23,7 @@ export const OfflineModeScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={rs(20)} color="#fff" />
@@ -49,7 +49,7 @@ export const OfflineModeScreen = () => {
               <Text style={styles.toggleLabel}>Enable Offline Mode</Text>
               <Text style={styles.toggleSub}>Use the app without internet</Text>
             </View>
-            <Switch value={offlineEnabled} onValueChange={setOfflineEnabled} trackColor={{ false: '#E5E7EB', true: '#D1EAE0' }} thumbColor={offlineEnabled ? '#1B5E4B' : '#9CA3AF'} />
+            <Switch value={offlineEnabled} onValueChange={setOfflineEnabled} trackColor={{ false: '#E5E7EB', true: '#DCE7F3' }} thumbColor={offlineEnabled ? '#002853' : '#9CA3AF'} />
           </View>
           <View style={styles.divider} />
           <View style={styles.toggleRow}>
@@ -57,12 +57,12 @@ export const OfflineModeScreen = () => {
               <Text style={styles.toggleLabel}>Auto Sync When Online</Text>
               <Text style={styles.toggleSub}>Upload pending records automatically</Text>
             </View>
-            <Switch value={autoSync} onValueChange={setAutoSync} trackColor={{ false: '#E5E7EB', true: '#D1EAE0' }} thumbColor={autoSync ? '#1B5E4B' : '#9CA3AF'} />
+            <Switch value={autoSync} onValueChange={setAutoSync} trackColor={{ false: '#E5E7EB', true: '#DCE7F3' }} thumbColor={autoSync ? '#002853' : '#9CA3AF'} />
           </View>
         </View>
 
         <TouchableOpacity style={styles.syncNowBtn} activeOpacity={0.85}>
-          <LinearGradient colors={['#065F46','#059669']} style={styles.syncNowGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+          <LinearGradient colors={['#002853','#133E72']} style={styles.syncNowGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
             <Ionicons name="cloud-upload-outline" size={rs(18)} color="#fff" />
             <Text style={styles.syncNowText}>Sync Now (12 pending)</Text>
           </LinearGradient>
@@ -73,7 +73,7 @@ export const OfflineModeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24) },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(16) },
   backBtn: { width: rs(36), height: rs(36), borderRadius: rs(18), backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center' },

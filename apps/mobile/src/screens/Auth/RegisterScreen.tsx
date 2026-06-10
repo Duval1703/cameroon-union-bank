@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   sectionDivider: { borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: rs(14), marginTop: rs(2) },
   sectionTitle: { fontSize: FontSize.base, color: '#002853', fontWeight: FontWeight.bold },
   chipRow: { gap: rs(8) },
-  chip: { paddingHorizontal: rs(14), paddingVertical: rs(8), backgroundColor: '#F0F4F2', borderRadius: Radius.full, borderWidth: 1.5, borderColor: '#E5E7EB' },
+  chip: { paddingHorizontal: rs(14), paddingVertical: rs(8), backgroundColor: '#F4F7FB', borderRadius: Radius.full, borderWidth: 1.5, borderColor: '#E5E7EB' },
   chipText: { fontSize: FontSize.sm, color: '#374151', fontWeight: FontWeight.medium },
   chipActive: { backgroundColor: '#DCE7F3', borderColor: '#002853' },
   chipTextActive: { color: '#002853', fontWeight: FontWeight.bold },

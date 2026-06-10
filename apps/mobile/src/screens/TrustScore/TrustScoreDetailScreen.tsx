@@ -72,7 +72,7 @@ export const TrustScoreDetailScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: vs(40) }}>
         {/* Hero */}
         <LinearGradient
-          colors={['#061E14','#0D4A35','#1B5E4B']}
+          colors={['#00172F','#002853','#002853']}
           style={[styles.hero, { paddingTop: insets.top + rs(10) }]}
         >
           <View style={styles.orb1} />
@@ -152,7 +152,7 @@ export const TrustScoreDetailScreen = () => {
                 <Text style={styles.historyDate}>{h.date}</Text>
                 <View style={styles.historyRight}>
                   <View style={[styles.historyBar, { width: rs(h.score) * 0.7 }]}>
-                    <LinearGradient colors={['#0D4A35','#1B5E4B']} style={StyleSheet.absoluteFillObject} />
+                    <LinearGradient colors={['#002853','#002853']} style={StyleSheet.absoluteFillObject} />
                   </View>
                   <Text style={styles.historyScore}>{h.score}</Text>
                 </View>
@@ -166,7 +166,7 @@ export const TrustScoreDetailScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(32), overflow: 'hidden', alignItems: 'center' },
   orb1: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   orb2: { position: 'absolute', bottom: rs(-20), left: rs(-30), width: rs(120), height: rs(120), borderRadius: rs(60), backgroundColor: 'rgba(255,255,255,0.04)' },

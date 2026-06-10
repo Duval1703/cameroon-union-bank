@@ -1,11 +1,11 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { InventoryHubScreen } from '../screens/Inventory/InventoryHubScreen';
+import { RepaymentHubScreen } from '../screens/Inventory/RepaymentHubScreen';
 
 const Stack = createStackNavigator();
 
 export const InventoryNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="RepaymentHub" component={InventoryHubScreen} />
+    <Stack.Screen name="RepaymentHub" component={RepaymentHubScreen} />
   </Stack.Navigator>
 );

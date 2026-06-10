@@ -64,7 +64,7 @@ export const DocumentUploadScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14', '#0D4A35', '#1B5E4B']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F', '#002853', '#002853']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={rs(20)} color="#FFFFFF" />
@@ -86,9 +86,9 @@ export const DocumentUploadScreen = () => {
           >
             <View style={[styles.cardIcon, uploaded[row.side] && styles.cardIconDone]}>
               {uploading === row.side ? (
-                <ActivityIndicator color="#065F46" />
+                <ActivityIndicator color="#002853" />
               ) : (
-                <Ionicons name={uploaded[row.side] ? 'checkmark-circle' : 'card-outline'} size={rs(26)} color={uploaded[row.side] ? '#059669' : '#065F46'} />
+                <Ionicons name={uploaded[row.side] ? 'checkmark-circle' : 'card-outline'} size={rs(26)} color={uploaded[row.side] ? '#059669' : '#002853'} />
               )}
             </View>
             <View style={{ flex: 1 }}>
@@ -110,7 +110,7 @@ export const DocumentUploadScreen = () => {
           }}
           activeOpacity={0.85}
         >
-          <LinearGradient colors={['#065F46', '#059669']} style={styles.nextBtnGrad}>
+          <LinearGradient colors={['#002853', '#133E72']} style={styles.nextBtnGrad}>
             <Ionicons name="scan-outline" size={rs(20)} color="#FFFFFF" />
             <Text style={styles.nextBtnText}>Continue to Face Liveness</Text>
           </LinearGradient>
@@ -121,7 +121,7 @@ export const DocumentUploadScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24) },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(14) },
   backBtn: { width: rs(36), height: rs(36), borderRadius: rs(18), backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' },

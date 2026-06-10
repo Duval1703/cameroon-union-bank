@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const DATA_AGENT_FALLBACK = 'http://192.168.100.166:8001';
-const PRODUCTION_DATA_AGENT_URL = process.env.EXPO_PUBLIC_DATA_AGENT_URL || 'https://mboatrust-data-collection.onrender.com';
+const PRODUCTION_DATA_AGENT_URL = process.env.EXPO_PUBLIC_DATA_AGENT_URL || 'https://cub-data-collection.onrender.com';
 
 export type MoneyProvider = 'MTN' | 'ORANGE';
 
@@ -92,6 +92,7 @@ function getDevAgentBaseUrls(port: number, fallback: string): string[] {
   return Array.from(new Set([
     primary,
     fallback,
+    PRODUCTION_DATA_AGENT_URL,
     ...androidFallbackUrls,
   ]));
 }
@@ -128,7 +129,13 @@ export async function requestApiDataCollection(params: {
   userPhone: string;
   provider: MoneyProvider;
   userId?: string;
-}): Promise<{ success: boolean; request_id?: string; message?: string; error?: string }> {
+}): Promise<{
+  success: boolean;
+  request_id?: string;
+  consent_url?: string;
+  message?: string;
+  error?: string;
+}> {
   try {
     const response = await agentFetch('/request-data', {
       method: 'POST',

@@ -34,7 +34,7 @@ export const PrivacyConsentScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <View style={styles.shieldWrap}>
           <View style={styles.shieldIcon}>
@@ -53,7 +53,7 @@ export const PrivacyConsentScreen = () => {
             {perms.map((p, i) => (
               <View key={i} style={[styles.permRow, i < perms.length - 1 && styles.permDiv]}>
                 <View style={styles.permIcon}>
-                  <Ionicons name={p.icon as any} size={rs(18)} color="#1B5E4B" />
+                  <Ionicons name={p.icon as any} size={rs(18)} color="#002853" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.permLabel}>{p.label}</Text>
@@ -88,7 +88,7 @@ export const PrivacyConsentScreen = () => {
             disabled={!agreed}
             activeOpacity={0.85}
           >
-            <LinearGradient colors={['#065F46','#059669']} style={styles.proceedBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+            <LinearGradient colors={['#002853','#133E72']} style={styles.proceedBtnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
               <Ionicons name="checkmark-circle-outline" size={rs(20)} color="#fff" />
               <Text style={styles.proceedBtnText}>Accept & Continue</Text>
             </LinearGradient>
@@ -103,7 +103,7 @@ export const PrivacyConsentScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden', alignItems: 'center', gap: rs(10) },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   shieldWrap: { marginBottom: rs(8) },

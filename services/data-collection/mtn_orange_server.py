@@ -70,7 +70,7 @@ approved_data = {}
 # development it can remain localhost; in deployment it must be the Render URL.
 PUBLIC_PROVIDER_URL = os.getenv(
     "PUBLIC_PROVIDER_URL",
-    "https://mboatrust-provider-simulator.onrender.com"
+    "https://cub-provider-simulator.onrender.com"
 ).rstrip("/")
 
 
@@ -204,7 +204,7 @@ async def health_check():
 @app.post("/api/v1/data-request")
 async def create_data_request(request: DataRequest):
     """
-    Endpoint called by the MboaTrust agent to request user's transaction data
+    Endpoint called by the CUB agent to request the user's transaction data
     Creates a consent request that user must approve on their phone
     NOW WITH TELEGRAM PUSH NOTIFICATIONS!
     """
@@ -436,7 +436,7 @@ async def get_pending_consents():
         <div class="container">
             <div class="header">
                 <h1>📱 Data Consent Requests</h1>
-                <p>MboaTrust is requesting access to your transaction data</p>
+                <p>Cameroon Union Bank is requesting access to your transaction data</p>
             </div>
             
             <div id="messages"></div>
@@ -670,7 +670,7 @@ async def approve_consent(request_id: str):
     req["status"] = "approved"
     req["approved_at"] = datetime.now().isoformat()
     
-    # Send data to MboaTrust agent via callback
+    # Send data to the CUB agent via callback
     success = False
     callback_status = 0
     try:
@@ -808,7 +808,7 @@ async def approve_consent(request_id: str):
             <div class="emoji">{'✅' if success else '⚠️'}</div>
             <h1>{'Data Approved!' if success else 'Approval Error'}</h1>
             <p>
-                {'Your transaction data has been successfully collected and sent to MboaTrust.' if success else 'There was an error sending your data. Please try again or contact support.'}
+                {'Your transaction data has been successfully collected and sent to Cameroon Union Bank.' if success else 'There was an error sending your data. Please try again or contact support.'}
             </p>
             
             <div class="info-box">
@@ -831,7 +831,7 @@ async def approve_consent(request_id: str):
             </div>
             
             <p style="font-size: 14px; color: #9ca3af;">
-                {'You can now view your financial profile on the MboaTrust dashboard.' if success else f'Error details: Status {callback_status}'}
+                {'You can now view your financial profile in the CUB app.' if success else f'Error details: Status {callback_status}'}
             </p>
             
             <button class="close-btn" onclick="window.close()">Close Window</button>
@@ -993,7 +993,7 @@ async def deny_consent(request_id: str):
     req["status"] = "denied"
     req["denied_at"] = datetime.now().isoformat()
     
-    # Notify MboaTrust agent
+    # Notify the CUB agent
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             await client.post(
@@ -1119,7 +1119,7 @@ async def deny_consent(request_id: str):
             <div class="emoji">🚫</div>
             <h1>Request Declined</h1>
             <p>
-                You have declined to share your transaction data with MboaTrust.
+                You have declined to share your transaction data with Cameroon Union Bank.
                 Your privacy is important to us.
             </p>
             

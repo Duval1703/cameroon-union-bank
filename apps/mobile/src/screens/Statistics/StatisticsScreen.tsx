@@ -71,7 +71,7 @@ export const StatisticsScreen = () => {
     <View style={styles.screen}>
       <StatusBar style="light" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: vs(100) }}>
-        <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
+        <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
           <View style={styles.orb} />
           <View style={styles.navRow}>
             <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -121,7 +121,7 @@ export const StatisticsScreen = () => {
             {weekData.map((d: any, i: number) => (
               <View key={i} style={styles.barGroup}>
                 <View style={styles.barPair}>
-                  <LinearGradient colors={['#0D4A35','#059669']} style={[styles.bar, { height: CHART_H * (d.sales / maxVal) }]} />
+                  <LinearGradient colors={['#002853','#133E72']} style={[styles.bar, { height: CHART_H * (d.sales / maxVal) }]} />
                   <View style={[styles.bar, { height: CHART_H * (d.expenses / maxVal), backgroundColor: '#FCA5A5' }]} />
                 </View>
                 <Text style={styles.barLabel}>{d.day}</Text>
@@ -172,7 +172,7 @@ export const StatisticsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(16) },
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   toggleBtn: { flex: 1, paddingVertical: rs(8), alignItems: 'center', borderRadius: Radius.lg },
   toggleBtnActive: { backgroundColor: '#FFFFFF' },
   toggleText: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.6)', fontWeight: FontWeight.medium },
-  toggleTextActive: { color: '#0D4A35', fontWeight: FontWeight.bold },
+  toggleTextActive: { color: '#002853', fontWeight: FontWeight.bold },
   summaryRow: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.xl, padding: rs(16), borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
   summaryItem: { flex: 1, alignItems: 'center', gap: rs(4) },
   summaryLbl: { fontSize: FontSize.xs, color: 'rgba(255,255,255,0.55)' },

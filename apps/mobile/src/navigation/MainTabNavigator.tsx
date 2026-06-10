@@ -24,7 +24,7 @@ const tabs = [
   { name: 'Verify' as const,  label: 'KYC',     icon: 'shield-outline',         iconActive: 'shield-checkmark' },
   { name: 'Records' as const, label: 'Loans',   icon: 'swap-horizontal-outline', iconActive: 'swap-horizontal' },
   { name: 'Inventory' as const,label: 'Repay',  icon: 'wallet-outline',         iconActive: 'wallet' },
-  { name: 'Insights' as const,label: 'Analytics',icon: 'trending-up-outline',   iconActive: 'trending-up' },
+  { name: 'Insights' as const,label: 'Inventory',icon: 'cube-outline',          iconActive: 'cube' },
   { name: 'Profile' as const, label: 'Profile', icon: 'person-outline',         iconActive: 'person' },
 ];
 

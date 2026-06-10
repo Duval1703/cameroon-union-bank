@@ -45,7 +45,7 @@ export const SalesHistoryScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#065F46','#059669','#10B981']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#002853','#133E72','#F0D980']} style={[styles.header, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -85,7 +85,7 @@ export const SalesHistoryScreen = () => {
         ) : sales.map((s, i) => (
           <View key={i} style={styles.card}>
             <View style={styles.cardLeft}>
-              <LinearGradient colors={['#065F46','#059669']} style={styles.cardIcon}>
+              <LinearGradient colors={['#002853','#133E72']} style={styles.cardIcon}>
                 <Ionicons name="cash-outline" size={rs(18)} color="#fff" />
               </LinearGradient>
             </View>
@@ -109,7 +109,7 @@ export const SalesHistoryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.08)' },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: rs(18) },

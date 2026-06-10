@@ -66,11 +66,7 @@ export type InventoryStackParamList = {
 };
 
 export type InsightsStackParamList = {
-  AIInsights: undefined;
-  FinancialSummary: undefined;
-  TrustScoreDetail: undefined;
-  Statistics: undefined;
-  AIPredictions: undefined;
+  InventoryCapture: undefined;
 };
 
 export type ProfileStackParamList = {

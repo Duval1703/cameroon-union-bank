@@ -79,7 +79,7 @@ export const ProfileScreen = () => {
       <StatusBar style="light" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: vs(100) }}>
         {/* Header */}
-        <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.header, { paddingTop: insets.top + rs(16) }]}>
+        <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.header, { paddingTop: insets.top + rs(16) }]}>
           <View style={styles.orb} />
           <View style={styles.avatarSection}>
             <View style={styles.avatarWrap}>
@@ -127,8 +127,8 @@ export const ProfileScreen = () => {
                     onPress={() => item.danger ? handleSignOut() : item.screen && navigation.navigate(item.screen)}
                     activeOpacity={0.75}
                   >
-                    <View style={[styles.menuIconBox, { backgroundColor: item.danger ? '#FEF2F2' : '#F0F4F2' }]}>
-                      <Ionicons name={item.icon as any} size={rs(18)} color={item.danger ? '#DC2626' : '#1B5E4B'} />
+                    <View style={[styles.menuIconBox, { backgroundColor: item.danger ? '#FEF2F2' : '#F4F7FB' }]}>
+                      <Ionicons name={item.icon as any} size={rs(18)} color={item.danger ? '#DC2626' : '#002853'} />
                     </View>
                     <Text style={[styles.menuLabel, item.danger && { color: '#DC2626' }]}>{item.label}</Text>
                     <Ionicons name="chevron-forward" size={rs(16)} color={item.danger ? '#FCA5A5' : '#D1D5DB'} />
@@ -146,14 +146,14 @@ export const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(20), paddingBottom: rs(24), overflow: 'hidden' },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   avatarSection: { alignItems: 'center', gap: rs(6), marginBottom: rs(20) },
   avatarWrap: { position: 'relative' },
   avatar: { width: rs(80), height: rs(80), borderRadius: rs(40), backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.3)' },
   avatarText: { fontSize: ms(28), fontWeight: FontWeight.extrabold, color: '#FFFFFF' },
-  avatarEdit: { position: 'absolute', bottom: 0, right: 0, width: rs(26), height: rs(26), borderRadius: rs(13), backgroundColor: '#1B5E4B', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' },
+  avatarEdit: { position: 'absolute', bottom: 0, right: 0, width: rs(26), height: rs(26), borderRadius: rs(13), backgroundColor: '#002853', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' },
   profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.extrabold, color: '#FFFFFF' },
   profileRole: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.65)' },
   profileChip: { flexDirection: 'row', alignItems: 'center', gap: rs(5), backgroundColor: 'rgba(245,166,35,0.22)', paddingHorizontal: rs(12), paddingVertical: rs(4), borderRadius: Radius.full },

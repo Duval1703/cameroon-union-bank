@@ -19,10 +19,10 @@ export const RecordSuccessScreen = () => {
   const checkAnim = useRef(new Animated.Value(0)).current;
 
   const config = {
-    sale:    { colors: ['#065F46','#059669','#10B981'] as const, icon: 'cash-outline',          label: 'Sale',    word: 'recorded' },
+    sale:    { colors: ['#002853','#133E72','#F0D980'] as const, icon: 'cash-outline',          label: 'Sale',    word: 'recorded' },
     expense: { colors: ['#7F1D1D','#DC2626','#EF4444'] as const, icon: 'trending-down-outline', label: 'Expense', word: 'recorded' },
     stock:   { colors: ['#1E3A8A','#2563EB','#3B82F6'] as const, icon: 'cube-outline',          label: 'Stock',   word: 'logged' },
-  }[type as string] || { colors: ['#065F46','#059669','#10B981'] as const, icon: 'cash-outline', label: 'Record', word: 'saved' };
+  }[type as string] || { colors: ['#002853','#133E72','#F0D980'] as const, icon: 'cash-outline', label: 'Record', word: 'saved' };
 
   useEffect(() => {
     Animated.sequence([

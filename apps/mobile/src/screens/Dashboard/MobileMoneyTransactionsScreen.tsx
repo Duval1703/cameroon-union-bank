@@ -83,7 +83,7 @@ export const MobileMoneyTransactionsScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14', '#0D4A35']} style={[styles.header, { paddingTop: insets.top + rs(12) }]}>
+      <LinearGradient colors={['#00172F', '#002853']} style={[styles.header, { paddingTop: insets.top + rs(12) }]}>
         <View style={styles.navRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={rs(20)} color="#FFFFFF" />
@@ -99,13 +99,13 @@ export const MobileMoneyTransactionsScreen = () => {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {loading ? (
           <View style={styles.loadingBox}>
-            <ActivityIndicator color="#0D4A35" />
+            <ActivityIndicator color="#002853" />
             <Text style={styles.loadingText}>Loading transactions...</Text>
           </View>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyCard}>
             <View style={styles.emptyIcon}>
-              <Ionicons name="wallet-outline" size={rs(30)} color="#0D4A35" />
+              <Ionicons name="wallet-outline" size={rs(30)} color="#002853" />
             </View>
             <Text style={styles.emptyTitle}>No uploaded transactions yet</Text>
             <Text style={styles.emptyText}>Sync MTN or Orange, approve the ntfy request, then refresh this page.</Text>
@@ -163,7 +163,7 @@ export const MobileMoneyTransactionsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   header: { paddingHorizontal: rs(18), paddingBottom: rs(20) },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   backBtn: { width: rs(36), height: rs(36), borderRadius: rs(18), backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: FontSize.sm, color: '#6B7280', textAlign: 'center', lineHeight: ms(14) * 1.45 },
   summaryCard: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: Radius.xl, padding: rs(12), gap: rs(8) },
   summaryStat: { flex: 1, backgroundColor: '#F8FAFC', borderRadius: Radius.md, padding: rs(10) },
-  summaryValue: { fontSize: FontSize.base, fontWeight: FontWeight.extrabold, color: '#0D4A35' },
+  summaryValue: { fontSize: FontSize.base, fontWeight: FontWeight.extrabold, color: '#002853' },
   summaryLabel: { fontSize: FontSize.xs, color: '#9CA3AF', marginTop: rs(2) },
   listCard: { backgroundColor: '#FFFFFF', borderRadius: Radius.xl, overflow: 'hidden' },
   transactionRow: { flexDirection: 'row', alignItems: 'center', gap: rs(12), padding: rs(14) },

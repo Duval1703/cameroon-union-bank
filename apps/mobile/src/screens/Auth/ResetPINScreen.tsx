@@ -28,7 +28,7 @@ export const ResetPINScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#061E14','#0D4A35','#1B5E4B']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
+      <LinearGradient colors={['#00172F','#002853','#002853']} style={[styles.hero, { paddingTop: insets.top + rs(10) }]}>
         <View style={styles.orb} />
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={rs(20)} color="#fff" />
@@ -79,7 +79,7 @@ export const ResetPINScreen = () => {
           disabled={!pin || !confirm || pin !== confirm || loading}
           activeOpacity={0.85}
         >
-          <LinearGradient colors={['#065F46','#059669']} style={styles.btnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+          <LinearGradient colors={['#002853','#133E72']} style={styles.btnGrad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
             <Ionicons name={loading ? 'hourglass-outline' : 'save-outline'} size={rs(18)} color="#fff" />
             <Text style={styles.btnText}>{loading ? 'Saving...' : 'Save New PIN'}</Text>
           </LinearGradient>
@@ -90,7 +90,7 @@ export const ResetPINScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F0F4F2' },
+  screen: { flex: 1, backgroundColor: '#F4F7FB' },
   hero: { paddingHorizontal: rs(20), paddingBottom: rs(28), overflow: 'hidden', alignItems: 'center', gap: rs(10) },
   orb: { position: 'absolute', top: rs(-40), right: rs(-40), width: rs(160), height: rs(160), borderRadius: rs(80), backgroundColor: 'rgba(255,255,255,0.06)' },
   backBtn: { width: rs(36), height: rs(36), borderRadius: rs(18), backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', marginBottom: rs(8) },

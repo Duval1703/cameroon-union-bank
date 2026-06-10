@@ -42,7 +42,7 @@ export const ResultConfirmedScreen = () => {
   return (
     <View style={styles.screen}>
       <StatusBar style="light" />
-      <LinearGradient colors={['#052E16','#065F46','#059669']} style={StyleSheet.absoluteFillObject} />
+      <LinearGradient colors={['#052E16','#002853','#059669']} style={StyleSheet.absoluteFillObject} />
       <View style={styles.orb1} />
       <View style={styles.orb2} />
 
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   signalLabel: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.75)' },
   actions: { width: '100%', gap: rs(10) },
   primaryBtn: { backgroundColor: '#FFFFFF', borderRadius: Radius.full, paddingVertical: rs(15), alignItems: 'center' },
-  primaryBtnText: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: '#065F46' },
+  primaryBtnText: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: '#002853' },
   secondaryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: rs(6), paddingVertical: rs(12) },
   secondaryBtnText: { fontSize: FontSize.base, color: 'rgba(255,255,255,0.7)', fontWeight: FontWeight.medium },
 });

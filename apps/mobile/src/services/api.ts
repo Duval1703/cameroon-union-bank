@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 
 const DEV_API_FALLBACK = 'http://192.168.100.166:8003';
-const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://mboatrust-api.onrender.com';
+const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://cub-api.onrender.com';
 
 export type ApiResponse<T> = {
   success: boolean;
